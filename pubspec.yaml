@@ -13,6 +13,12 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.2
+  firebase_core: ^2.1.1
+  flutter_svg: ^1.1.6
+  firebase_auth: ^4.1.0
+  google_sign_in: ^5.4.2
+  provider: ^6.0.4
+  # flutter_facebook_auth: ^5.0.1
 
 dev_dependencies:
   flutter_test:
@@ -22,3 +28,23 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/icons/
+
+  fonts:
+    - family: RedHatDisplay
+      fonts:
+        - asset: assets/fonts/RedHatDisplay-Regular.ttf
+        - asset: assets/fonts/RedHatDisplay-Light.ttf
+          weight: 300
+        - asset: assets/fonts/RedHatDisplay-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/RedHatDisplay-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/RedHatDisplay-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/RedHatDisplay-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/RedHatDisplay-Black.ttf
+          weight: 900
