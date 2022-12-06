@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:papayask_app/auth/screens/login_screen.dart';
 import 'package:papayask_app/auth/screens/signup_screen.dart';
-import 'package:papayask_app/shared/full_logo.dart';
+import 'package:papayask_app/shared/appbar.dart';
 
 class AuthScreen extends StatefulWidget {
   static const routeName = '/auth';
@@ -25,11 +25,8 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const FullLogo(),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 1,
+      appBar: const CustomAppBar(
+        extended: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(30),

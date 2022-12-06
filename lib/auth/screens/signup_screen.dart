@@ -5,6 +5,7 @@ import 'package:papayask_app/auth/auth_service.dart';
 import 'package:papayask_app/auth/widgets/form_devider.dart';
 import 'package:papayask_app/auth/widgets/social_icons.dart';
 import 'package:papayask_app/shared/app_icon.dart';
+import 'package:papayask_app/theme/colors.dart';
 
 class SignupScreen extends StatefulWidget {
   final Function changeMode;
@@ -122,7 +123,7 @@ class _SignupScreenState extends State<SignupScreen> {
           ElevatedButton(
             onPressed: isLoading ? null : submit,
             style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).primaryColor,
+              backgroundColor: Theme.of(context).colorScheme.primaryColor,
               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -169,7 +170,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: Theme.of(context).primaryColor,
+                    color: Theme.of(context).colorScheme.primaryColor,
                   ),
                 ),
                 onTap: () {
@@ -199,10 +200,10 @@ class _SignupScreenState extends State<SignupScreen> {
           decoration: InputDecoration(
             labelText: label,
             labelStyle: TextStyle(
-              color: Theme.of(context).primaryColor,
+              color: Theme.of(context).colorScheme.primaryColor,
             ),
             floatingLabelStyle: TextStyle(
-              color: Theme.of(context).primaryColor,
+              color: Theme.of(context).colorScheme.primaryColor,
             ),
             errorText: _formErrors[field],
             errorStyle: const TextStyle(
@@ -221,7 +222,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       child: AppIcon(
                         src: showPassword ? 'See' : 'Hide',
                         size: 30,
-                        color: Theme.of(context).primaryColor,
+                        color: Theme.of(context).colorScheme.primaryColor,
                       ),
                     ),
                     onPressed: () {
@@ -236,13 +237,13 @@ class _SignupScreenState extends State<SignupScreen> {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(5),
-              borderSide:
-                  BorderSide(color: Theme.of(context).primaryColor, width: 1),
+              borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.primaryColor, width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(5),
-              borderSide:
-                  BorderSide(color: Theme.of(context).primaryColor, width: 2),
+              borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.primaryColor, width: 2),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(5),

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:papayask_app/auth/screens/auth_screen.dart';
 import 'package:papayask_app/auth/auth_service.dart';
-import 'package:provider/provider.dart';
+import 'package:papayask_app/shared/app_drawer.dart';
+import 'package:papayask_app/shared/appbar.dart';
 
 class MainScreen extends StatefulWidget {
   static const routeName = '/main';
@@ -14,14 +16,13 @@ class MainScreen extends StatefulWidget {
 
 class MainScreenState extends State<MainScreen> {
   final authService = AuthService();
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthService>(context);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('main'),
-        centerTitle: true,
-      ),
+      appBar: const CustomAppBar(),
+      drawer: const AppDrawer(),
       body: !authProvider.isVerified
           ? Center(
               child: Container(

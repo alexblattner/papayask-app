@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 // import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_config/flutter_config.dart';
 
 import '/models/user.dart' as user_model;
 
@@ -18,18 +22,41 @@ class AuthService with ChangeNotifier {
       _auth.currentUser?.emailVerified ??
       false; //prevent unverified users from accessing app
 
+  AuthService() {
+    //listen to auth state changes
+    authStateChanges.listen((User? user) async {
+      if (user != null) {
+        //if user is authenticated
+        updateAuthUser(user);
+      } else {
+        //if user is not authenticated
+        authUser = null;
+      }
+      notifyListeners();
+    });
+  }
+
   //update authUser with user info coming from firebase
-  void updateAuthUser(User? user) {
-    if (user != null) {
-      authUser = user_model.User(
-        id: user.uid,
-        email: user.email ?? '',
-        username: user.displayName ?? '',
-        isEmailVerified: user.emailVerified,
-      );
+  Future<void> updateAuthUser(User? user) async {
+    final token = await user?.getIdToken(true);
+    if (token is! String) {
+      return;
+    }
+    final res = await http
+        .post(Uri.parse('${FlutterConfig.get('API_URL')}/user'), body: {
+      'email': user?.email,
+      'name': user?.displayName,
+      'uid': user?.uid,
+    }, headers: {
+      'Authorization': 'Bearer $token',
+    });
+
+    if (res.statusCode == 200) {
+      authUser = user_model.User.fromJson(jsonDecode(res.body));
     } else {
       authUser = null;
     }
+
     notifyListeners();
   }
 
@@ -76,7 +103,13 @@ class AuthService with ChangeNotifier {
       idToken: googleAuth?.idToken,
     );
 
-    await _auth.signInWithCredential(credential);
+    try {
+      UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
+      updateAuthUser(userCredential.user);
+    } on FirebaseAuthException catch (e) {
+      print(e.code);
+    }
   }
 
   //sign user in with facebook to firebase and update authUser, create user in mongodb if not already created

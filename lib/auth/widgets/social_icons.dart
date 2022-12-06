@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:papayask_app/auth/auth_service.dart';
 import 'package:papayask_app/shared/app_icon.dart';
+import 'package:papayask_app/theme/colors.dart';
 
 class SocialIconsContainer extends StatelessWidget {
   final String type;
@@ -55,7 +56,7 @@ class SocialIconsContainer extends StatelessWidget {
                 Text(
                   '${type == 'login' ? 'Sign' : 'Join'} in with Facebook',
                   style: const TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
@@ -78,7 +79,7 @@ class SocialIconsContainer extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               border: Border.all(
-                color: Theme.of(context).primaryColor,
+                color: Theme.of(context).colorScheme.primaryColor,
                 width: 2,
               ),
               borderRadius: BorderRadius.circular(8),
@@ -89,7 +90,7 @@ class SocialIconsContainer extends StatelessWidget {
                 AppIcon(
                   src: 'google',
                   size: 25,
-                  color: Theme.of(context).primaryColor,
+                  color: Theme.of(context).colorScheme.primaryColor,
                 ),
                 const SizedBox(
                   width: 25,
@@ -97,9 +98,9 @@ class SocialIconsContainer extends StatelessWidget {
                 Text(
                   '${type == 'login' ? 'Sign' : 'Join'} in with Google',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor,
+                    color: Theme.of(context).colorScheme.primaryColor,
                   ),
                 ),
               ],
@@ -138,7 +139,7 @@ class SocialIconsContainer extends StatelessWidget {
                 Text(
                   '${type == 'login' ? 'Sign' : 'Join'} in with Apple',
                   style: const TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),

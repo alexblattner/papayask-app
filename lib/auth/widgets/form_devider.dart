@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:papayask_app/theme/colors.dart';
+
 class FormDivider extends StatelessWidget {
   const FormDivider({
     Key? key,
@@ -11,7 +13,7 @@ class FormDivider extends StatelessWidget {
       children: [
         Expanded(
           child: Divider(
-            color: Theme.of(context).primaryColor,
+            color: Theme.of(context).colorScheme.primaryColor,
             thickness: 1,
           ),
         ),
@@ -20,7 +22,7 @@ class FormDivider extends StatelessWidget {
           child: Text(
             'OR',
             style: TextStyle(
-              color: Theme.of(context).primaryColor,
+              color: Theme.of(context).colorScheme.primaryColor,
               fontSize: 18,
               fontWeight: FontWeight.w500,
             ),
@@ -29,7 +31,7 @@ class FormDivider extends StatelessWidget {
         Expanded(
           child: Divider(
             thickness: 1,
-            color: Theme.of(context).primaryColor,
+            color: Theme.of(context).colorScheme.primaryColor,
           ),
         ),
       ],
