@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:papayask_app/auth/auth_service.dart';
-
 import 'package:papayask_app/profile/profile.dart';
 import 'package:papayask_app/shared/app_icon.dart';
 import 'package:papayask_app/shared/full_logo.dart';
 import 'package:papayask_app/theme/colors.dart';
-import 'package:provider/provider.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -42,7 +41,7 @@ class AppDrawer extends StatelessWidget {
                       Navigator.of(context).pop();
                       Navigator.of(context).pushNamed(
                         ProfileScreen.routeName,
-                        arguments: auth.authUser!.id,
+                        arguments: {'profileId': auth.authUser!.id},
                       );
                     },
                   ),
