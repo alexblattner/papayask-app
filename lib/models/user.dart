@@ -1,3 +1,6 @@
+import 'package:papayask_app/models/education.dart';
+import 'package:papayask_app/models/experience.dart';
+
 class User {
   String id;
   String name;
@@ -11,13 +14,13 @@ class User {
   String bio;
   String? picture;
   List<dynamic> skills;
-  List experience;
-  List education;
+  List<Experience> experience;
+  List<Education> education;
   List<dynamic> languages;
   String country;
   bool verified;
-  Map<String, dynamic> requestSettings;
-  String questionsInstructions;
+  Map<String, dynamic>? requestSettings;
+  String? questionsInstructions;
   Map<String, dynamic> questions;
   int newQuestionsCount;
   User({
@@ -38,8 +41,8 @@ class User {
     required this.languages,
     required this.country,
     required this.verified,
-    required this.requestSettings,
-    required this.questionsInstructions,
+    this.requestSettings,
+    this.questionsInstructions,
     required this.questions,
     required this.newQuestionsCount,
   });
@@ -59,15 +62,35 @@ class User {
       bio: json['bio'],
       picture: json['picture'],
       skills: json['skills'],
-      experience: json['experience'],
-      education: json['education'],
+      experience: getExperience(json['experience']),
+      education: getEducation(json['education']),
       languages: json['languages'],
       country: json['country'],
       verified: json['verified'],
       requestSettings: json['request_settings'],
       questionsInstructions: json['questionsInstructions'],
-      questions: json['questions'],
+      questions: json['questions'] ??
+          {
+            'sent': [],
+            'received': [],
+          },
       newQuestionsCount: json['newQuestionsCount'] ?? 0,
     );
   }
+}
+
+List<Education> getEducation(List education) {
+  List<Education> educationList = [];
+  for (var i = 0; i < education.length; i++) {
+    educationList.add(Education.fromJson(education[i]));
+  }
+  return educationList;
+}
+
+List<Experience> getExperience(List experience) {
+  List<Experience> experienceList = [];
+  for (var i = 0; i < experience.length; i++) {
+    experienceList.add(Experience.fromJson(experience[i]));
+  }
+  return experienceList;
 }

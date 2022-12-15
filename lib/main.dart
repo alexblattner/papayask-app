@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_config/flutter_config.dart';
 import 'package:provider/provider.dart';
 
+import 'package:papayask_app/profile/update_profile.dart';
 import 'package:papayask_app/auth/screens/auth_screen.dart';
 import 'package:papayask_app/auth/auth_service.dart';
 import 'package:papayask_app/firebase_options.dart';
@@ -15,6 +16,7 @@ import 'package:papayask_app/theme/colors.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
+    name: 'Papayask',
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await FlutterConfig.loadEnvVariables();
@@ -41,6 +43,38 @@ class MyApp extends StatelessWidget {
             return MaterialApp(
               home: const HomeController(),
               theme: ThemeData(
+                inputDecorationTheme: InputDecorationTheme(
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(5),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.primaryColor,
+                      width: 1,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(5),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.primaryColor,
+                      width: 2,
+                    ),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(5),
+                    borderSide: const BorderSide(color: Colors.red, width: 1),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(5),
+                    borderSide: const BorderSide(color: Colors.red, width: 2),
+                  ),
+                  labelStyle: const TextStyle(
+                    color: Colors.grey,
+                  ),
+                  floatingLabelStyle: TextStyle(
+                    color: Theme.of(context).colorScheme.primaryColor,
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                ),
                 appBarTheme: AppBarTheme(
                   elevation: 1,
                   color: Theme.of(context).colorScheme.secondaryColor_L1,
@@ -49,12 +83,51 @@ class MyApp extends StatelessWidget {
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
+                  iconTheme: IconThemeData(
+                    color: Theme.of(context).colorScheme.primaryColor,
+                  ),
+                ),
+                elevatedButtonTheme: ElevatedButtonThemeData(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                textButtonTheme: TextButtonThemeData(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    foregroundColor: Theme.of(context).colorScheme.primaryColor,
+                  ),
+                ),
+                outlinedButtonTheme: OutlinedButtonThemeData(
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.primaryColor,
+                      width: 1,
+                    ),
+                    foregroundColor: Theme.of(context).colorScheme.primaryColor,
+                  ),
                 ),
               ),
               routes: {
                 AuthScreen.routeName: (context) => const AuthScreen(),
                 MainScreen.routeName: (context) => const MainScreen(),
                 ProfileScreen.routeName: (context) => const ProfileScreen(),
+                ProfileUpdatePage.routeName: (context) =>
+                    const ProfileUpdatePage(),
               },
             );
           },

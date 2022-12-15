@@ -4,7 +4,7 @@ import 'package:papayask_app/auth/auth_service.dart';
 import 'package:papayask_app/shared/app_icon.dart';
 import 'package:papayask_app/theme/colors.dart';
 
-class SocialIconsContainer extends StatelessWidget {
+class SocialIconsContainer extends StatefulWidget {
   final String type;
   const SocialIconsContainer({
     Key? key,
@@ -12,13 +12,32 @@ class SocialIconsContainer extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<SocialIconsContainer> createState() => _SocialIconsContainerState();
+}
+
+class _SocialIconsContainerState extends State<SocialIconsContainer> {
+  final Map<String, bool> _isloading = {
+    'facebook': false,
+    'google': false,
+    'apple': false,
+  };
+
+  void toggleLoading(String provider) {
+    setState(() {
+      _isloading[provider] = !_isloading[provider]!;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final authService = AuthService();
     return Column(
       children: [
         GestureDetector(
-          onTap: () {
-            authService.signInWithFacebook();
+          onTap: () async {
+            toggleLoading('facebook');
+            await authService.signInWithFacebook();
+            toggleLoading('facebook');
           },
           child: Container(
             padding: const EdgeInsets.symmetric(
@@ -54,13 +73,25 @@ class SocialIconsContainer extends StatelessWidget {
                   width: 25,
                 ),
                 Text(
-                  '${type == 'login' ? 'Sign' : 'Join'} in with Facebook',
+                  '${widget.type == 'login' ? 'Sign' : 'Join'} in with Facebook',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
+                if (_isloading['facebook']!)
+                  const SizedBox(
+                    width: 10,
+                  ),
+                if (_isloading['facebook']!)
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                    ),
+                  ),
               ],
             ),
           ),
@@ -69,8 +100,10 @@ class SocialIconsContainer extends StatelessWidget {
           height: 16,
         ),
         GestureDetector(
-          onTap: () {
-            authService.signInWithGoogle();
+          onTap: () async {
+            toggleLoading('google');
+            await authService.signInWithGoogle();
+            toggleLoading('google');
           },
           child: Container(
             padding: const EdgeInsets.symmetric(
@@ -96,13 +129,25 @@ class SocialIconsContainer extends StatelessWidget {
                   width: 25,
                 ),
                 Text(
-                  '${type == 'login' ? 'Sign' : 'Join'} in with Google',
+                  '${widget.type == 'login' ? 'Sign' : 'Join'} in with Google',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primaryColor,
                   ),
                 ),
+                if (_isloading['google']!)
+                  const SizedBox(
+                    width: 10,
+                  ),
+                if (_isloading['google']!)
+                  SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      color: Theme.of(context).colorScheme.primaryColor,
+                    ),
+                  ),
               ],
             ),
           ),
@@ -111,7 +156,7 @@ class SocialIconsContainer extends StatelessWidget {
           height: 16,
         ),
         GestureDetector(
-          onTap: () {},
+          onTap: () async {},
           child: Container(
             padding: const EdgeInsets.symmetric(
               vertical: 12,
@@ -137,13 +182,25 @@ class SocialIconsContainer extends StatelessWidget {
                   width: 25,
                 ),
                 Text(
-                  '${type == 'login' ? 'Sign' : 'Join'} in with Apple',
+                  '${widget.type == 'login' ? 'Sign' : 'Join'} in with Apple',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
+                if (_isloading['apple']!)
+                  const SizedBox(
+                    width: 10,
+                  ),
+                if (_isloading['apple']!)
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                    ),
+                  ),
               ],
             ),
           ),

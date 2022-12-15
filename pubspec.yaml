@@ -21,6 +21,8 @@ dependencies:
   http: ^0.13.5
   flutter_config: ^2.0.0
   cloudinary_sdk: ^4.0.2+10
+  flutter_typeahead: ^4.1.1
+  select_form_field: '^2.2.0'
   # flutter_facebook_auth: ^5.0.1
 
 dev_dependencies:
@@ -33,6 +35,8 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/icons/
+    - assets/fonts/
     - assets/
 
   fonts:

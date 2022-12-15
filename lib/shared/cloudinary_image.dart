@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_config/flutter_config.dart';
 import 'package:papayask_app/shared/logo.dart';
 
 class CloudinaryImage extends StatelessWidget {
@@ -26,8 +25,9 @@ class CloudinaryImage extends StatelessWidget {
                   size: 60,
                 ),
               ),
-              Image.network(
-                  '${FlutterConfig.get('CLOUDINARY_URL')}/c_scale,w_${size.toInt()},h_${size.toInt()}/${FlutterConfig.get('ENV')}/$src'),
+              // Image.network(
+              //   '${FlutterConfig.get('CLOUDINARY_URL')}/c_scale,w_${size.toInt()},h_${size.toInt()}/${FlutterConfig.get('ENV')}/$src',
+              // ),
             ],
           ),
         ),

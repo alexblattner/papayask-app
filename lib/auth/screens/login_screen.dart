@@ -199,12 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
           obscureText: field == 'password' && !showPassword,
           decoration: InputDecoration(
             labelText: label,
-            labelStyle: TextStyle(
-              color: Theme.of(context).colorScheme.primaryColor,
-            ),
-            floatingLabelStyle: TextStyle(
-              color: Theme.of(context).colorScheme.primaryColor,
-            ),
+           
             errorText: _formErrors[field],
             errorStyle: const TextStyle(
               fontSize: 16,
@@ -231,26 +226,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       });
                     },
                   ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: const BorderSide(color: Colors.red, width: 1),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(
-                  color: Theme.of(context).colorScheme.primaryColor, width: 1),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(
-                  color: Theme.of(context).colorScheme.primaryColor, width: 2),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: const BorderSide(color: Colors.red, width: 2),
-            ),
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
           ),
         ),
       ],

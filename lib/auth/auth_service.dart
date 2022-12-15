@@ -25,7 +25,7 @@ class AuthService with ChangeNotifier {
   AuthService() {
     //listen to auth state changes
     authStateChanges.listen((User? user) async {
-      if (user != null) {
+      if (user != null && authUser == null) {
         //if user is authenticated
         updateAuthUser(user);
       } else {
@@ -42,22 +42,23 @@ class AuthService with ChangeNotifier {
     if (token is! String) {
       return;
     }
-    final res = await http
-        .post(Uri.parse('${FlutterConfig.get('API_URL')}/user'), body: {
-      'email': user?.email,
-      'name': user?.displayName,
-      'uid': user?.uid,
-    }, headers: {
-      'Authorization': 'Bearer $token',
-    });
-
-    if (res.statusCode == 200) {
-      authUser = user_model.User.fromJson(jsonDecode(res.body));
-    } else {
-      authUser = null;
+    try {
+      final res = await http
+          .post(Uri.parse('${FlutterConfig.get('API_URL')}/user'), body: {
+        'email': user?.email,
+        'name': user?.displayName,
+        'uid': user?.uid,
+      }, headers: {
+        'Authorization': 'Bearer $token',
+      });
+      if (res.statusCode == 200) {
+        authUser = user_model.User.fromJson(jsonDecode(res.body));
+      } else {
+        authUser = null;
+      }
+    } catch (e) {
+      print(e);
     }
-
-    notifyListeners();
   }
 
   //sign user in with email and password to firebase, create user in mongodb, and update authUser
@@ -86,6 +87,7 @@ class AuthService with ChangeNotifier {
       );
       updateAuthUser(userCredential.user);
     } on FirebaseAuthException catch (e) {
+      print(e.code);
       return e.code;
     }
     return 'done';
@@ -128,5 +130,35 @@ class AuthService with ChangeNotifier {
   //reload user info from firebase. used for updating email verification status
   void reload() {
     _auth.currentUser!.reload();
+  }
+
+  Future<String> updateUser(Map<String, dynamic> data) async {
+    final token = await _auth.currentUser?.getIdToken(true);
+    if (token is! String) {
+      return 'error';
+    }
+    try {
+      final res = await http.patch(
+          Uri.parse('${FlutterConfig.get('API_URL')}/user/${authUser!.id}'),
+          body: jsonEncode(data),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-type': 'application/json',
+            'Accept': 'application/json'
+          });
+      if (res.statusCode == 200) {
+        final convertedData = jsonDecode(res.body);
+        user_model.User updatedUser =
+            user_model.User.fromJson(convertedData['user']);
+        authUser = updatedUser;
+        notifyListeners();
+        return 'done';
+      } else {
+        return 'error';
+      }
+    } catch (e) {
+      print(e);
+      return e.toString();
+    }
   }
 }

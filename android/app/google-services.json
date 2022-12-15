@@ -1,77 +1,34 @@
 {
   "project_info": {
-    "project_number": "845413008078",
-    "project_id": "papayas-a4fb2",
-    "storage_bucket": "papayas-a4fb2.appspot.com"
+    "project_number": "640980254537",
+    "project_id": "development-13b3c",
+    "storage_bucket": "development-13b3c.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:845413008078:android:3862e154f1c798a6e2469f",
+        "mobilesdk_app_id": "1:640980254537:android:13e591ee71a56e80b76498",
         "android_client_info": {
-          "package_name": "com.example.papayask_app"
+          "package_name": "com.example.papyask_app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "845413008078-jljh6pueg5jie146rs6lq110i7v2fut9.apps.googleusercontent.com",
+          "client_id": "640980254537-rq6gh2ti0cjt6a6djqas6hg50e89gu1k.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAz-ipKnMv956KrSgblHanFIOwii2-Ne3E"
+          "current_key": "AIzaSyBjV79DjiiJrUEp3883B8ozz4aojxtq74A"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "845413008078-jljh6pueg5jie146rs6lq110i7v2fut9.apps.googleusercontent.com",
+              "client_id": "640980254537-rq6gh2ti0cjt6a6djqas6hg50e89gu1k.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "845413008078-nj7sdecsnvdidj1hkgq1gva5nkp26lbu.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.papayaskApp"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:845413008078:android:f146d0d800bca2e3e2469f",
-        "android_client_info": {
-          "package_name": "com.papayask.papayask"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "845413008078-jljh6pueg5jie146rs6lq110i7v2fut9.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAz-ipKnMv956KrSgblHanFIOwii2-Ne3E"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "845413008078-jljh6pueg5jie146rs6lq110i7v2fut9.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "845413008078-nj7sdecsnvdidj1hkgq1gva5nkp26lbu.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.papayaskApp"
-              }
             }
           ]
         }
