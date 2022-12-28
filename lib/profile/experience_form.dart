@@ -6,10 +6,14 @@ import 'package:select_form_field/select_form_field.dart';
 class ExperienceForm extends StatefulWidget {
   final Experience experience;
   final bool isEditing;
+  final Function? addExperience;
+  final bool isInSetup;
   const ExperienceForm({
     super.key,
     required this.experience,
     this.isEditing = false,
+    this.addExperience,
+    this.isInSetup = false,
   });
 
   @override
@@ -29,23 +33,36 @@ class _ExperienceFormState extends State<ExperienceForm> {
     widget.experience.geographicSpecialization = [country];
   }
 
+  void resetControllers() {
+    positionController.clear();
+    levelController.clear();
+    companyController.clear();
+    countryController.clear();
+    startDateController.clear();
+    endDateController.clear();
+  }
+
   @override
-  void initState() {
-    if (widget.isEditing) {
-      positionController.text = widget.experience.name;
-      levelController.text = widget.experience.type;
-      companyController.text = widget.experience.company.name;
-      countryController.text =
-          widget.experience.geographicSpecialization.isNotEmpty
-              ? widget.experience.geographicSpecialization[0]
-              : '';
-      startDateController.text =
-          widget.experience.startDate.toString().substring(0, 10);
-      endDateController.text = widget.experience.endDate != null
-          ? widget.experience.endDate.toString().substring(0, 10)
-          : '';
-    }
-    super.initState();
+  void didChangeDependencies() {
+    positionController.text = widget.experience.name;
+    levelController.text = widget.experience.type;
+    companyController.text = widget.experience.company.name;
+    countryController.text =
+        widget.experience.geographicSpecialization.isNotEmpty
+            ? widget.experience.geographicSpecialization[0]
+            : '';
+    startDateController.text =
+        widget.experience.startDate.toString().substring(0, 10) ==
+                DateTime.now().toString().substring(0, 10)
+            ? ''
+            : widget.experience.startDate.toString().substring(0, 10);
+    endDateController.text = widget.experience.endDate == null ||
+            widget.experience.endDate.toString().substring(0, 10) ==
+                DateTime.now().toString().substring(0, 10)
+        ? ''
+        : widget.experience.endDate.toString().substring(0, 10);
+
+    super.didChangeDependencies();
   }
 
   @override
@@ -177,6 +194,20 @@ class _ExperienceFormState extends State<ExperienceForm> {
             ),
           ],
         ),
+        if (widget.isInSetup) const SizedBox(height: 12),
+        if (widget.isInSetup)
+          ElevatedButton(
+            onPressed: () {
+              widget.addExperience!(widget.experience);
+              resetControllers();
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Text('ADD'),
+              ],
+            ),
+          ),
       ],
     );
   }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:papayask_app/models/university.dart';
+import 'package:papayask_app/profile/skills_form.dart';
 import 'package:papayask_app/models/education.dart';
 import 'package:papayask_app/models/company.dart';
 import 'package:papayask_app/models/experience.dart';
@@ -44,12 +46,10 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
   var newEducation = Education(
     name: '',
     level: '',
-    university: {
-      'name': '',
-      'country': '',
-    },
+    university: University(name: '', country: ''),
     startDate: DateTime.now(),
   );
+  var userSkills = [];
 
   var isLoading = false;
   var isDeleting = false;
@@ -66,6 +66,7 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
     user = authProvider.authUser!;
     userBio = user.bio;
     userLanguages = user.languages;
+    userSkills = user.skills;
     super.initState();
   }
 
@@ -119,7 +120,11 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
           languages: userLanguages,
         );
       case CurrentScreen.skills:
-        return Container();
+        return SkillsForm(
+          skills: userSkills,
+          education: user.education,
+          experience: user.experience,
+        );
     }
   }
 
@@ -183,6 +188,12 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
                   'endDate': e.endDate?.toIso8601String(),
                 })
             .toList(),
+      };
+    }
+
+    if (currentScreen == CurrentScreen.skills) {
+      data = {
+        'skills': userSkills,
       };
     }
 
@@ -288,63 +299,105 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
       appBar: AppBar(
         title: const Text('Update Profile'),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Update Your $getCurrentScreen',
-                style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 8.0,
+          vertical: 32,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Update Your $getCurrentScreen',
+              style: const TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(
-                height: 40,
-              ),
-              getScreen,
-              const SizedBox(
-                height: 40,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(
-                          fontSize: 16,
-                        ),
+            ),
+            const SizedBox(
+              height: 40,
+            ),
+            Expanded(child: getScreen),
+            const SizedBox(
+              height: 40,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        fontSize: 16,
                       ),
                     ),
                   ),
+                ),
+                const SizedBox(
+                  width: 20,
+                ),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: isLoading || isDeleting ? () {} : _updateProfile,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          updateButtonText,
+                          style: const TextStyle(
+                            fontSize: 16,
+                          ),
+                        ),
+                        if (isLoading)
+                          const SizedBox(
+                            width: 10,
+                          ),
+                        if (isLoading)
+                          const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (isEditingEducation || isEditingExperience)
                   const SizedBox(
                     width: 20,
                   ),
+                if (isEditingEducation || isEditingExperience)
                   Expanded(
                     child: ElevatedButton(
-                      onPressed:
-                          isLoading || isDeleting ? () {} : _updateProfile,
+                      onPressed: isDeleting || isLoading
+                          ? () {}
+                          : () {
+                              _delete(newEducation, newExperience);
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            updateButtonText,
-                            style: const TextStyle(
+                          const Text(
+                            'Delete',
+                            style: TextStyle(
                               fontSize: 16,
                             ),
                           ),
-                          if (isLoading)
+                          if (isDeleting)
                             const SizedBox(
                               width: 10,
                             ),
-                          if (isLoading)
+                          if (isDeleting)
                             const SizedBox(
                               height: 20,
                               width: 20,
@@ -357,51 +410,9 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
                       ),
                     ),
                   ),
-                  if (isEditingEducation || isEditingExperience)
-                    const SizedBox(
-                      width: 20,
-                    ),
-                  if (isEditingEducation || isEditingExperience)
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: isDeleting || isLoading
-                            ? () {}
-                            : () {
-                                _delete(newEducation, newExperience);
-                              },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              'Delete',
-                              style: TextStyle(
-                                fontSize: 16,
-                              ),
-                            ),
-                            if (isDeleting)
-                              const SizedBox(
-                                width: 10,
-                              ),
-                            if (isDeleting)
-                              const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ),
       ),
     );

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_config/flutter_config.dart';
 import 'package:provider/provider.dart';
 
+import 'package:papayask_app/profile/setup/setup_screen.dart';
 import 'package:papayask_app/profile/update_profile.dart';
 import 'package:papayask_app/auth/screens/auth_screen.dart';
 import 'package:papayask_app/auth/auth_service.dart';
@@ -47,8 +48,8 @@ class MyApp extends StatelessWidget {
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(5),
                     borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.primaryColor,
-                      width: 1,
+                      color: Theme.of(context).colorScheme.secondaryColor,
+                      width: 2,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
@@ -126,6 +127,7 @@ class MyApp extends StatelessWidget {
                 AuthScreen.routeName: (context) => const AuthScreen(),
                 MainScreen.routeName: (context) => const MainScreen(),
                 ProfileScreen.routeName: (context) => const ProfileScreen(),
+                SetupScreen.routeName: (context) => const SetupScreen(),
                 ProfileUpdatePage.routeName: (context) =>
                     const ProfileUpdatePage(),
               },

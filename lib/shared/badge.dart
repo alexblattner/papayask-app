@@ -13,6 +13,12 @@ class Badge extends StatelessWidget {
     this.onRemove,
   });
 
+  void remove() {
+    if (onRemove != null) {
+      onRemove!(text);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -37,7 +43,7 @@ class Badge extends StatelessWidget {
             ),
           if (isRemovable && onRemove != null)
             GestureDetector(
-              onTap: () => onRemove!(text),
+              onTap: remove,
               child: const Icon(
                 Icons.close,
                 color: Colors.white,

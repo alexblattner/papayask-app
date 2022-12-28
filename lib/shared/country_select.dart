@@ -29,7 +29,6 @@ class _CountrySelectState extends State<CountrySelect> {
   @override
   void initState() {
     loadJson();
-
     super.initState();
   }
 

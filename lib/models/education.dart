@@ -1,6 +1,8 @@
+import 'package:papayask_app/models/university.dart';
+
 class Education {
   String? id;
-  Map<String, dynamic> university;
+  University university;
   String name;
   String level;
   DateTime startDate;
@@ -18,7 +20,7 @@ class Education {
   factory Education.fromJson(Map<String, dynamic> json) {
     return Education(
       id: json['_id'],
-      university: json['university'],
+      university: University.fromJson(json['university']),
       name: json['name'],
       level: json['level'],
       startDate: DateTime.parse(json['startDate']),

@@ -29,14 +29,6 @@ class _UniversitySelectState extends State<UniversitySelect> {
   }
 
   @override
-  void didChangeDependencies() {
-    widget.universityController.addListener(() {
-      widget.onChangeUniversity(widget.universityController.text);
-    });
-    super.didChangeDependencies();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return TypeAheadField(
       minCharsForSuggestions: 1,

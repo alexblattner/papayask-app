@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 
 import 'package:papayask_app/models/education.dart';
+import 'package:papayask_app/models/university.dart';
 import 'package:papayask_app/shared/country_select.dart';
 import 'package:papayask_app/shared/university_select.dart';
 
 class EducationForm extends StatefulWidget {
   final Education education;
   final bool isEditing;
+  final Function? addEducation;
+  final bool isInSetup;
   const EducationForm({
     super.key,
     required this.education,
     this.isEditing = false,
+    this.addEducation,
+    this.isInSetup = false,
   });
 
   @override
@@ -28,35 +33,50 @@ class _EducationFormState extends State<EducationForm> {
   void selectUniversity(Map<String, dynamic> university) {
     universityController.text = university['name'];
     countryController.text = university['country'];
-    widget.education.university = {
-      'name': university['name'],
-      'country': university['country'],
-      '_id': university['_id'],
-    };
+    widget.education.university = University(
+      country: university['country'],
+      name: university['name'],
+      id: university['_id'],
+      rank: university['rank'],
+    );
   }
 
   void onChangeUniversity(String value) {
-    widget.education.university['name'] = value;
+    widget.education.university.name = value;
   }
 
   void selectCountry(String country) {
     countryController.text = country;
-    widget.education.university['country'] = country;
+    widget.education.university.country = country;
+  }
+
+  void resetControllers() {
+    universityController.clear();
+    fieldOfStudyController.clear();
+    levelController.clear();
+    countryController.clear();
+    startDateController.clear();
+    endDateController.clear();
   }
 
   @override
-  void initState() {
-    if (widget.isEditing) {
-      universityController.text = widget.education.university['name'];
-      fieldOfStudyController.text = widget.education.name;
-      levelController.text = widget.education.level;
-      countryController.text = widget.education.university['country'];
-      startDateController.text =
-          widget.education.startDate.toString().substring(0, 10);
-      endDateController.text =
-          widget.education.endDate.toString().substring(0, 10);
-    }
-    super.initState();
+  void didChangeDependencies() {
+    universityController.text = widget.education.university.name;
+    fieldOfStudyController.text = widget.education.name;
+    levelController.text = widget.education.level;
+    countryController.text = widget.education.university.country;
+    startDateController.text =
+        widget.education.startDate.toString().substring(0, 10) ==
+                DateTime.now().toString().substring(0, 10)
+            ? ''
+            : widget.education.startDate.toString().substring(0, 10);
+    endDateController.text = widget.education.endDate == null ||
+            widget.education.endDate.toString().substring(0, 10) ==
+                DateTime.now().toString().substring(0, 10)
+        ? ''
+        : widget.education.endDate.toString().substring(0, 10);
+
+    super.didChangeDependencies();
   }
 
   @override
@@ -81,7 +101,9 @@ class _EducationFormState extends State<EducationForm> {
               child: TextField(
                 controller: fieldOfStudyController,
                 onChanged: (value) {
-                  widget.education.name = value;
+                  setState(() {
+                    widget.education.name = value;
+                  });
                 },
                 decoration: const InputDecoration(
                   labelText: 'Field of study',
@@ -183,6 +205,20 @@ class _EducationFormState extends State<EducationForm> {
             ),
           ],
         ),
+        if (widget.isInSetup) const SizedBox(height: 12),
+        if (widget.isInSetup)
+          ElevatedButton(
+            onPressed: () {
+              widget.addEducation!(widget.education);
+              resetControllers();
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Text('ADD'),
+              ],
+            ),
+          ),
       ],
     );
   }

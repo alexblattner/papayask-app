@@ -1,5 +1,6 @@
 import 'package:papayask_app/models/education.dart';
 import 'package:papayask_app/models/experience.dart';
+import 'package:papayask_app/models/skill.dart';
 
 class User {
   String id;
@@ -13,7 +14,7 @@ class User {
   bool isSetUp;
   String bio;
   String? picture;
-  List<dynamic> skills;
+  List<Skill> skills;
   List<Experience> experience;
   List<Education> education;
   List<dynamic> languages;
@@ -61,7 +62,7 @@ class User {
       isSetUp: json['isSetUp'],
       bio: json['bio'],
       picture: json['picture'],
-      skills: json['skills'],
+      skills: json['skills'].map<Skill>((e) => Skill.fromJson(e)).toList(),
       experience: getExperience(json['experience']),
       education: getEducation(json['education']),
       languages: json['languages'],

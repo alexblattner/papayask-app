@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:papayask_app/profile/setup/setup_screen.dart';
 import 'package:papayask_app/profile/update_profile.dart';
 import 'package:papayask_app/shared/app_icon.dart';
 import 'package:papayask_app/shared/badge.dart';
-import 'package:papayask_app/shared/cloudinary_image.dart';
+import 'package:papayask_app/shared/profile_picture.dart';
 import 'package:papayask_app/shared/flag.dart';
 import 'package:papayask_app/utils/format_date.dart';
 import 'package:papayask_app/auth/auth_service.dart';
@@ -57,9 +58,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    CloudinaryImage(
+                    ProfilePicture(
                       src: profileUser!.picture!,
                       size: 150,
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.of(context).pushNamed(
+                          SetupScreen.routeName,
+                          arguments: profileUser,
+                        );
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AppIcon(
+                            src: 'pencil_fill',
+                            size: 16,
+                            color: Theme.of(context).colorScheme.primaryColor,
+                          ),
+                          const SizedBox(
+                            width: 4,
+                          ),
+                          Text(
+                            'Edit Profile',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primaryColor,
+                            ),
+                          )
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -183,7 +212,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     size: 22,
                     color: Theme.of(context).colorScheme.primaryColor,
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(
+                      ProfileUpdatePage.routeName,
+                      arguments: {
+                        'currentScreen': CurrentScreen.skills,
+                      },
+                    );
+                  },
                 ),
             ],
           ),
@@ -191,8 +227,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              for (final skill in profileUser!.skills)
-                Badge(text: skill['name'])
+              for (final skill in profileUser!.skills) Badge(text: skill.name)
             ],
           ),
         ],
@@ -316,7 +351,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(education.university['name']),
+                        Text(education.university.name),
                         Row(
                           children: [
                             Text(formatDate(education.startDate)),
