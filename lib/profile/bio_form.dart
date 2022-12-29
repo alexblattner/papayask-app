@@ -33,9 +33,11 @@ class _BioFormState extends State<BioForm> {
           minLines: 7,
           keyboardType: TextInputType.multiline,
           controller: bioController,
+          decoration: const InputDecoration(
+            contentPadding: EdgeInsets.all(16),
+          ),
           onChanged: (value) {
             widget.updateBio(value);
-          
           },
         ),
       ],

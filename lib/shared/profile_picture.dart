@@ -38,7 +38,7 @@ class ProfilePicture extends StatelessWidget {
                     fit: BoxFit.cover,
                   ),
                   imageUrl:
-                      '${FlutterConfig.get('CLOUDINARY_URL')}/c_scale,w_${size.toInt()},h_${size.toInt()}/${FlutterConfig.get('ENV')}/$src',
+                      '${FlutterConfig.get('CLOUDINARY_URL')}/c_fill,w_${size.toInt()},h_${size.toInt()}/${FlutterConfig.get('ENV')}/$src',
                 ),
         ),
       ),

@@ -43,6 +43,7 @@ class _LanguageSelectState extends State<LanguageSelect> {
     return TypeAheadField(
       hideOnEmpty: true,
       minCharsForSuggestions: 1,
+      hideOnLoading: true,
       textFieldConfiguration: TextFieldConfiguration(
         controller: typeAheadController,
         decoration: const InputDecoration(

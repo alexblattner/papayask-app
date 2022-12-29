@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:papayask_app/shared/cloudinary_upload.dart';
 import 'package:provider/provider.dart';
 
 import 'package:papayask_app/models/skill.dart';
@@ -39,6 +40,7 @@ class _SetupScreenState extends State<SetupScreen> {
   var currentPage = 1;
   List<int> pagesDone = [1];
   var skills = <Skill>[];
+  var userProfilePicture = '';
 
   Education newEducation = Education(
     name: '',
@@ -69,6 +71,12 @@ class _SetupScreenState extends State<SetupScreen> {
   void updateBio(String bio) {
     setState(() {
       user.bio = bio;
+    });
+  }
+
+  void updateProfilePicture(String profilePicture) {
+    setState(() {
+      userProfilePicture = profilePicture;
     });
   }
 
@@ -113,6 +121,7 @@ class _SetupScreenState extends State<SetupScreen> {
       isLoading = true;
     });
     Map<String, dynamic> data = {
+      'picture': userProfilePicture,
       'title': user.title,
       'bio': user.bio,
       'country': user.country,
@@ -179,6 +188,7 @@ class _SetupScreenState extends State<SetupScreen> {
     titleController.text = user.title;
     skills = user.skills;
     countryController.text = user.country;
+    userProfilePicture = user.picture ?? '';
     isInit = true;
     super.didChangeDependencies();
   }
@@ -223,6 +233,12 @@ class _SetupScreenState extends State<SetupScreen> {
     return SingleChildScrollView(
       child: Column(
         children: [
+          const SizedBox(height: 24),
+          CloudinaryUploadWidget(
+            updateImage: updateProfilePicture,
+            currentImage: userProfilePicture,
+          ),
+          const SizedBox(height: 24),
           const FormTitle(title: 'Job description'),
           const SizedBox(height: 12),
           TextField(

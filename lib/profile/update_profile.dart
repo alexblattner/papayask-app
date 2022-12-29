@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:papayask_app/shared/cloudinary_upload.dart';
 import 'package:papayask_app/models/university.dart';
+import 'package:papayask_app/shared/app_icon.dart';
 import 'package:papayask_app/profile/skills_form.dart';
 import 'package:papayask_app/models/education.dart';
 import 'package:papayask_app/models/company.dart';
@@ -19,6 +21,7 @@ enum CurrentScreen {
   experience,
   language,
   skills,
+  profilePicture,
 }
 
 class ProfileUpdatePage extends StatefulWidget {
@@ -50,6 +53,7 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
     startDate: DateTime.now(),
   );
   var userSkills = [];
+  var userProfilePicture = '';
 
   var isLoading = false;
   var isDeleting = false;
@@ -60,6 +64,12 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
     });
   }
 
+  void updateProfilePicture(String profilePicture) {
+    setState(() {
+      userProfilePicture = profilePicture;
+    });
+  }
+
   @override
   void initState() {
     final authProvider = Provider.of<AuthService>(context, listen: false);
@@ -67,6 +77,7 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
     userBio = user.bio;
     userLanguages = user.languages;
     userSkills = user.skills;
+    userProfilePicture = user.picture ?? '';
     super.initState();
   }
 
@@ -96,6 +107,8 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
         return 'Experience';
       case CurrentScreen.language:
         return 'Language';
+      case CurrentScreen.profilePicture:
+        return 'Profile Picture';
       case CurrentScreen.skills:
         return 'Skills';
     }
@@ -124,6 +137,11 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
           skills: userSkills,
           education: user.education,
           experience: user.experience,
+        );
+      case CurrentScreen.profilePicture:
+        return CloudinaryUploadWidget(
+          updateImage: updateProfilePicture,
+          currentImage: userProfilePicture,
         );
     }
   }
@@ -194,6 +212,12 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
     if (currentScreen == CurrentScreen.skills) {
       data = {
         'skills': userSkills,
+      };
+    }
+
+    if (currentScreen == CurrentScreen.profilePicture) {
+      data = {
+        'picture': userProfilePicture,
       };
     }
 
@@ -298,122 +322,121 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Update Profile'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 8.0,
-          vertical: 32,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Update Your $getCurrentScreen',
-              style: const TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
+        actions: [
+          if (currentScreen == CurrentScreen.education ||
+              currentScreen == CurrentScreen.experience)
+            if (isEditingEducation || isEditingExperience)
+              IconButton(
+                onPressed: isDeleting || isLoading
+                    ? () {}
+                    : () {
+                        _delete(
+                          isEditingEducation ? newEducation : null,
+                          isEditingExperience ? newExperience : null,
+                        );
+                      },
+                icon: const AppIcon(
+                  src: 'delete',
+                  color: Colors.red,
+                  size: 24,
+                ),
               ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0,
+              vertical: 32,
             ),
-            const SizedBox(
-              height: 40,
-            ),
-            Expanded(child: getScreen),
-            const SizedBox(
-              height: 40,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
-                    ),
+                Text(
+                  'Update Your $getCurrentScreen',
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(
-                  width: 20,
+                  height: 40,
                 ),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: isLoading || isDeleting ? () {} : _updateProfile,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          updateButtonText,
-                          style: const TextStyle(
+                Expanded(child: getScreen),
+                const SizedBox(
+                  height: 40,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(
                             fontSize: 16,
                           ),
                         ),
-                        if (isLoading)
-                          const SizedBox(
-                            width: 10,
-                          ),
-                        if (isLoading)
-                          const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed:
+                            isLoading || isDeleting ? () {} : _updateProfile,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              updateButtonText,
+                              style: const TextStyle(
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
-                      ],
+                            if (isLoading)
+                              const SizedBox(
+                                width: 10,
+                              ),
+                            if (isLoading)
+                              const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          if (isDeleting)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withOpacity(0.5),
+                child: const Center(
+                  child: SizedBox(
+                    height: 50,
+                    width: 50,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
                     ),
                   ),
                 ),
-                if (isEditingEducation || isEditingExperience)
-                  const SizedBox(
-                    width: 20,
-                  ),
-                if (isEditingEducation || isEditingExperience)
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: isDeleting || isLoading
-                          ? () {}
-                          : () {
-                              _delete(newEducation, newExperience);
-                            },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Delete',
-                            style: TextStyle(
-                              fontSize: 16,
-                            ),
-                          ),
-                          if (isDeleting)
-                            const SizedBox(
-                              width: 10,
-                            ),
-                          if (isDeleting)
-                            const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-              ],
+              ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }

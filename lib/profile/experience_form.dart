@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:papayask_app/models/company.dart';
 import 'package:papayask_app/models/experience.dart';
+import 'package:papayask_app/shared/company_select.dart';
 import 'package:papayask_app/shared/country_select.dart';
 import 'package:select_form_field/select_form_field.dart';
 
@@ -114,14 +116,15 @@ class _ExperienceFormState extends State<ExperienceForm> {
         const SizedBox(
           height: 20,
         ),
-        TextField(
-          controller: companyController,
-          onChanged: (value) {
+        CompanySelect(
+          selectCompany: (Map<String, dynamic> company) {
+            widget.experience.company = Company.fromJson(company);
+            companyController.text = company['name'];
+          },
+          companyController: companyController,
+          onChangeCompany: (String value) {
             widget.experience.company.name = value;
           },
-          decoration: const InputDecoration(
-            labelText: 'Company',
-          ),
         ),
         const SizedBox(
           height: 20,

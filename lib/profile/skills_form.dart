@@ -291,6 +291,7 @@ class _SkillsFormState extends State<SkillsForm>
               sizeFactor: CurvedAnimation(
                 parent: _controller,
                 curve: Curves.easeInOut,
+                reverseCurve: Curves.easeInOut,
               ),
               child: Container(
                 decoration: BoxDecoration(

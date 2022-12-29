@@ -48,7 +48,7 @@ class MyApp extends StatelessWidget {
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(5),
                     borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.secondaryColor,
+                      color: Colors.grey.shade300,
                       width: 2,
                     ),
                   ),
@@ -78,7 +78,7 @@ class MyApp extends StatelessWidget {
                 ),
                 appBarTheme: AppBarTheme(
                   elevation: 1,
-                  color: Theme.of(context).colorScheme.secondaryColor_L1,
+                  color: Colors.white,
                   titleTextStyle: TextStyle(
                     color: Theme.of(context).colorScheme.primaryColor,
                     fontSize: 24,
@@ -121,6 +121,11 @@ class MyApp extends StatelessWidget {
                     ),
                     foregroundColor: Theme.of(context).colorScheme.primaryColor,
                   ),
+                ),
+                progressIndicatorTheme: ProgressIndicatorThemeData(
+                  color: Theme.of(context).colorScheme.primaryColor,
+                  linearTrackColor:
+                      Theme.of(context).colorScheme.secondaryColor,
                 ),
               ),
               routes: {

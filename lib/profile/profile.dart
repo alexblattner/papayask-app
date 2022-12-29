@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:papayask_app/profile/skill_badge.dart';
+import 'package:papayask_app/shared/company_logo.dart';
+import 'package:papayask_app/shared/university_logo.dart';
 import 'package:papayask_app/profile/setup/setup_screen.dart';
 import 'package:papayask_app/profile/update_profile.dart';
 import 'package:papayask_app/shared/app_icon.dart';
@@ -45,6 +48,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(profileUser?.name ?? ''),
+        actions: [
+          if (isOwnProfile)
+            IconButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed(
+                  SetupScreen.routeName,
+                  arguments: profileUser,
+                );
+              },
+              icon: AppIcon(
+                src: 'pencil_fill',
+                size: 18,
+                color: Theme.of(context).colorScheme.primaryColor,
+              ),
+            ),
+        ],
       ),
       body: profileUser == null
           ? Center(
@@ -58,39 +77,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    ProfilePicture(
-                      src: profileUser!.picture!,
-                      size: 150,
+                    const SizedBox(
+                      height: 24,
                     ),
-                    const SizedBox(height: 8),
-                    OutlinedButton(
-                      onPressed: () {
-                        Navigator.of(context).pushNamed(
-                          SetupScreen.routeName,
-                          arguments: profileUser,
-                        );
-                      },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          AppIcon(
-                            src: 'pencil_fill',
-                            size: 16,
-                            color: Theme.of(context).colorScheme.primaryColor,
-                          ),
-                          const SizedBox(
-                            width: 4,
-                          ),
-                          Text(
-                            'Edit Profile',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.primaryColor,
+                    Stack(
+                      children: [
+                        ProfilePicture(
+                          src: profileUser!.picture!,
+                          size: 150,
+                        ),
+                        if (isOwnProfile)
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).pushNamed(
+                                  ProfileUpdatePage.routeName,
+                                  arguments: {
+                                    'currentScreen':
+                                        CurrentScreen.profilePicture,
+                                  },
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primaryColor
+                                      .withOpacity(0.3),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const AppIcon(
+                                  src: 'pencil_fill',
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
-                          )
-                        ],
-                      ),
+                          ),
+                      ],
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(
+                      height: 12,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
@@ -116,9 +147,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: 32),
                     _buildBio(context),
+                    const SizedBox(
+                      height: 16,
+                    ),
                     _buildEducation(context),
+                    const SizedBox(
+                      height: 16,
+                    ),
                     _buildExperience(context),
+                    const SizedBox(
+                      height: 16,
+                    ),
                     _buildSkills(context),
+                    const SizedBox(
+                      height: 16,
+                    ),
                     _buildLanguages(context),
                   ],
                 ),
@@ -153,10 +196,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               if (isOwnProfile)
                 IconButton(
-                  icon: AppIcon(
+                  icon: const AppIcon(
                     src: 'pencil_fill',
                     size: 22,
-                    color: Theme.of(context).colorScheme.primaryColor,
                   ),
                   onPressed: () {
                     Navigator.of(context).pushNamed(
@@ -207,10 +249,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               if (isOwnProfile)
                 IconButton(
-                  icon: AppIcon(
+                  icon: const AppIcon(
                     src: 'pencil_fill',
                     size: 22,
-                    color: Theme.of(context).colorScheme.primaryColor,
                   ),
                   onPressed: () {
                     Navigator.of(context).pushNamed(
@@ -227,7 +268,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              for (final skill in profileUser!.skills) Badge(text: skill.name)
+              for (final skill in profileUser!.skills) SkillBadge(skill: skill),
             ],
           ),
         ],
@@ -262,10 +303,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               if (isOwnProfile)
                 IconButton(
-                  icon: AppIcon(
+                  icon: const AppIcon(
                     src: 'pencil_fill',
                     size: 22,
-                    color: Theme.of(context).colorScheme.primaryColor,
                   ),
                   onPressed: () {
                     Navigator.of(context).pushNamed(
@@ -318,10 +358,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               if (isOwnProfile)
                 IconButton(
-                  icon: AppIcon(
+                  icon: const AppIcon(
                     src: 'plus',
                     size: 22,
-                    color: Theme.of(context).colorScheme.primaryColor,
                   ),
                   onPressed: () {
                     Navigator.of(context).pushNamed(
@@ -342,10 +381,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Card(
                   child: ListTile(
+                    onTap: isOwnProfile
+                        ? () {
+                            Navigator.of(context).pushNamed(
+                              ProfileUpdatePage.routeName,
+                              arguments: {
+                                'currentScreen': CurrentScreen.education,
+                                'oldEducation': education,
+                              },
+                            );
+                          }
+                        : null,
                     isThreeLine: true,
-                    leading: const AppIcon(
-                      src: 'study',
-                      size: 48,
+                    leading: UniversityLogo(
+                      logo: education.university.logo,
                     ),
                     title: Text(education.name),
                     subtitle: Column(
@@ -361,26 +410,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ],
                     ),
-                  ),
-                ),
-                Positioned(
-                  right: 15,
-                  top: 15,
-                  child: GestureDetector(
-                    child: AppIcon(
-                      src: 'pencil_fill',
-                      size: 22,
-                      color: Theme.of(context).colorScheme.primaryColor,
-                    ),
-                    onTap: () {
-                      Navigator.of(context).pushNamed(
-                        ProfileUpdatePage.routeName,
-                        arguments: {
-                          'currentScreen': CurrentScreen.education,
-                          'oldEducation': education,
-                        },
-                      );
-                    },
                   ),
                 ),
               ],
@@ -417,10 +446,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               if (isOwnProfile)
                 IconButton(
-                  icon: AppIcon(
+                  icon: const AppIcon(
                     src: 'plus',
                     size: 22,
-                    color: Theme.of(context).colorScheme.primaryColor,
                   ),
                   onPressed: () {
                     Navigator.of(context).pushNamed(
@@ -441,10 +469,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Card(
                   child: ListTile(
+                    onTap: isOwnProfile
+                        ? () {
+                            Navigator.of(context).pushNamed(
+                              ProfileUpdatePage.routeName,
+                              arguments: {
+                                'currentScreen': CurrentScreen.experience,
+                                'oldExperience': experience,
+                              },
+                            );
+                          }
+                        : null,
                     isThreeLine: true,
-                    leading: const AppIcon(
-                      src: 'work',
-                      size: 48,
+                    leading: CompanyLogo(
+                      logo: experience.company.logo,
                     ),
                     title: Text(experience.name),
                     subtitle: Column(
@@ -460,26 +498,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ],
                     ),
-                  ),
-                ),
-                Positioned(
-                  right: 15,
-                  top: 15,
-                  child: GestureDetector(
-                    child: AppIcon(
-                      src: 'pencil_fill',
-                      size: 22,
-                      color: Theme.of(context).colorScheme.primaryColor,
-                    ),
-                    onTap: () {
-                      Navigator.of(context).pushNamed(
-                        ProfileUpdatePage.routeName,
-                        arguments: {
-                          'currentScreen': CurrentScreen.experience,
-                          'oldExperience': experience,
-                        },
-                      );
-                    },
                   ),
                 ),
               ],

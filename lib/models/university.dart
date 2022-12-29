@@ -1,6 +1,7 @@
 class University {
   String? id;
   String name;
+  String? logo;
   String country;
   int rank;
 
@@ -8,6 +9,7 @@ class University {
     this.id,
     required this.name,
     required this.country,
+    this.logo,
     this.rank = 1800,
   });
 
@@ -17,6 +19,7 @@ class University {
       name: json['name'],
       rank: json['rank'],
       country: json['country'],
+      logo: json['logo'],
     );
   }
 
@@ -26,6 +29,7 @@ class University {
       'name': name,
       'rank': rank,
       'country': country,
+      'logo': logo,
     };
   }
 }
