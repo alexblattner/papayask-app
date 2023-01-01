@@ -56,6 +56,7 @@ class AuthService with ChangeNotifier {
       } else {
         authUser = null;
       }
+      notifyListeners();
     } catch (e) {
       print(e);
     }
@@ -159,6 +160,34 @@ class AuthService with ChangeNotifier {
     } catch (e) {
       print(e);
       return e.toString();
+    }
+  }
+
+  Future<String> becomeAnAdvisor() async {
+    final token = await _auth.currentUser?.getIdToken(true);
+    if (token is! String) {
+      return 'Please login first';
+    }
+    try {
+      final res = await http.post(
+          Uri.parse('${FlutterConfig.get('API_URL')}/confirmation-application'),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-type': 'application/json',
+            'Accept': 'application/json'
+          });
+      final convertedData = jsonDecode(res.body);
+      if (res.statusCode == 200) {
+        authUser!.advisorStatus = 'pending';
+        notifyListeners();
+        return 'done';
+      } else {
+        print(convertedData['message']);
+        return convertedData['message'];
+      }
+    } catch (e) {
+      print(e);
+      return 'Something went wrong';
     }
   }
 }

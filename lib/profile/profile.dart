@@ -54,7 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onPressed: () {
                 Navigator.of(context).pushNamed(
                   SetupScreen.routeName,
-                  arguments: profileUser,
+                  arguments: {'user': profileUser, 'isAdvisorSetup': false},
                 );
               },
               icon: AppIcon(

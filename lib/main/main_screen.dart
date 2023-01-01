@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:papayask_app/auth/screens/auth_screen.dart';
+import 'package:papayask_app/profile/become_advisor_modal.dart';
+import 'package:papayask_app/profile/setup/setup_screen.dart';
 import 'package:papayask_app/auth/auth_service.dart';
 import 'package:papayask_app/shared/app_drawer.dart';
 import 'package:papayask_app/shared/appbar.dart';
@@ -16,10 +18,140 @@ class MainScreen extends StatefulWidget {
 
 class MainScreenState extends State<MainScreen> {
   final authService = AuthService();
+  var isLoading = false;
+
+  BecomeAdvisorModalType get _modalType {
+    if (authService.authUser!.advisorStatus == false &&
+        authService.authUser!.progress >= 75) {
+      return BecomeAdvisorModalType.info;
+    } else if (authService.authUser!.advisorStatus == false &&
+        authService.authUser!.progress < 75) {
+      return BecomeAdvisorModalType.inComplete;
+    } else if (authService.authUser!.advisorStatus == 'pending') {
+      return BecomeAdvisorModalType.pendingApproval;
+    } else {
+      return BecomeAdvisorModalType.info;
+    }
+  }
+
+  void becomeAdvisor() {
+    final authProvider = Provider.of<AuthService>(context, listen: false);
+    showDialog(
+      context: context,
+      builder: ((context) {
+        return LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              content: SizedBox(
+                height: constraints.maxHeight * 0.4,
+                width: constraints.maxWidth * 0.8,
+                child: BecomeAdvisorModal(
+                  progress: authProvider.authUser!.progress,
+                  type: _modalType,
+                ),
+              ),
+              actions: [
+                OutlinedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text(
+                    'Cancel',
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (authService.authUser!.advisorStatus == 'pending' ||
+                        (authService.authUser!.advisorStatus == false &&
+                            authService.authUser!.progress < 75)) {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pushNamed(
+                        SetupScreen.routeName,
+                        arguments: {
+                          'user': authProvider.authUser,
+                          'isAdvisorSetup':
+                              authService.authUser!.advisorStatus == 'pending'
+                                  ? false
+                                  : true,
+                        },
+                      );
+                    } else if (authService.authUser!.advisorStatus == false &&
+                        authService.authUser!.progress >= 75) {
+                      setState(() {
+                        isLoading = true;
+                      });
+                      final res = await authService.becomeAnAdvisor();
+                      if (!mounted) return;
+                      Navigator.pop(context);
+                      if (res == 'done') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Application submitted successfully',
+                              textAlign: TextAlign.center,
+                            ),
+                            backgroundColor: Colors.green,
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Something went wrong',
+                              textAlign: TextAlign.center,
+                            ),
+                            backgroundColor: Colors.red,
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      }
+                      setState(() {
+                        isLoading = false;
+                      });
+                    }
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        authService.authUser!.advisorStatus == 'pending' ||
+                                (authService.authUser!.advisorStatus == false &&
+                                    authService.authUser!.progress < 75)
+                            ? 'Edit profile'
+                            : 'Become an advisor',
+                      ),
+                      if (isLoading)
+                        const SizedBox(
+                          width: 10,
+                        ),
+                      if (isLoading)
+                        const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      }),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthService>(context);
+    final user = authProvider.authUser;
     return Scaffold(
       appBar: const CustomAppBar(),
       drawer: const AppDrawer(),
@@ -76,13 +208,30 @@ class MainScreenState extends State<MainScreen> {
               ),
             )
           : Center(
-              child: ElevatedButton(
-                  onPressed: () {
-                    authService.logout();
-                    Navigator.of(context)
-                        .pushReplacementNamed(AuthScreen.routeName);
-                  },
-                  child: const Text('logout')),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (user?.advisorStatus != 'approved')
+                    OutlinedButton(
+                      onPressed: () {
+                        becomeAdvisor();
+                      },
+                      child: Text(
+                        user?.advisorStatus == 'pending'
+                            ? 'Pending Approval'
+                            : 'Become an Advisor',
+                      ),
+                    ),
+                  ElevatedButton(
+                    onPressed: () {
+                      authService.logout();
+                      Navigator.of(context)
+                          .pushReplacementNamed(AuthScreen.routeName);
+                    },
+                    child: const Text('logout'),
+                  ),
+                ],
+              ),
             ),
     );
   }

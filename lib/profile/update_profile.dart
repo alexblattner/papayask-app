@@ -228,7 +228,10 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Somthing went wrong'),
+          content: Text(
+            'Somthing went wrong',
+            textAlign: TextAlign.center,
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -291,7 +294,10 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Somthing went wrong'),
+          content: Text(
+            'Somthing went wrong',
+            textAlign: TextAlign.center,
+          ),
           backgroundColor: Colors.red,
         ),
       );

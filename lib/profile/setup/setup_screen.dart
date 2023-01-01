@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:papayask_app/shared/cloudinary_upload.dart';
 import 'package:provider/provider.dart';
 
+import 'package:papayask_app/profile/become_advisor_modal.dart';
+import 'package:papayask_app/shared/cloudinary_upload.dart';
+import 'package:papayask_app/shared/full_logo.dart';
 import 'package:papayask_app/models/skill.dart';
 import 'package:papayask_app/profile/form_title.dart';
 import 'package:papayask_app/profile/skills_form.dart';
@@ -20,7 +22,6 @@ import 'package:papayask_app/profile/setup/pagination.dart';
 import 'package:papayask_app/shared/app_icon.dart';
 import 'package:papayask_app/shared/country_select.dart';
 import 'package:papayask_app/theme/colors.dart';
-import 'package:papayask_app/shared/appbar.dart';
 import 'package:papayask_app/utils/format_date.dart';
 
 class SetupScreen extends StatefulWidget {
@@ -34,13 +35,52 @@ class SetupScreen extends StatefulWidget {
 class _SetupScreenState extends State<SetupScreen> {
   TextEditingController countryController = TextEditingController();
   TextEditingController titleController = TextEditingController();
+  var isAdvisorSetup = false;
   var isInit = false;
   var isLoading = false;
+  var isSaving = false;
   late User user;
   var currentPage = 1;
   List<int> pagesDone = [1];
+
   var skills = <Skill>[];
   var userProfilePicture = '';
+  var userTitle = '';
+  var userBio = '';
+  var userCountry = '';
+  var userLanguages = [];
+  var userEducation = <Education>[];
+  var userExperience = <Experience>[];
+
+  int get progress {
+    int progress = 0;
+    if (userTitle != '') {
+      progress += 5;
+    }
+    if (userBio != '') {
+      progress += 15;
+    }
+    if (userProfilePicture != '') {
+      progress += 15;
+    }
+    if (skills.isNotEmpty) {
+      for (var i = 0; i < skills.length; i++) {
+        if (skills[i].educations.isNotEmpty ||
+            skills[i].experiences.isNotEmpty) {
+          progress += 10;
+        } else {
+          progress += 5;
+        }
+      }
+    }
+    if (userExperience.isNotEmpty) {
+      progress += userExperience.length * 5;
+    }
+    if (userEducation.isNotEmpty) {
+      progress += userEducation.length * 5;
+    }
+    return progress;
+  }
 
   Education newEducation = Education(
     name: '',
@@ -70,7 +110,7 @@ class _SetupScreenState extends State<SetupScreen> {
 
   void updateBio(String bio) {
     setState(() {
-      user.bio = bio;
+      userBio = bio;
     });
   }
 
@@ -82,7 +122,7 @@ class _SetupScreenState extends State<SetupScreen> {
 
   void addEducation(Education education) {
     setState(() {
-      user.education.add(education);
+      userEducation.add(education);
       newEducation = Education(
         name: '',
         level: '',
@@ -95,7 +135,7 @@ class _SetupScreenState extends State<SetupScreen> {
 
   void addExperience(Experience experience) {
     setState(() {
-      user.experience.add(experience);
+      userExperience.add(experience);
       newExperience = Experience(
         name: '',
         type: '',
@@ -110,22 +150,104 @@ class _SetupScreenState extends State<SetupScreen> {
   void onSelectedCountry(String country) {
     setState(() {
       countryController.text = country;
-      user.country = country;
+      userCountry = country;
     });
   }
 
-  Future<void> submit() async {
+  Future<void> apply() async {
+    final authProvider = Provider.of<AuthService>(context, listen: false);
+    var res = await authProvider.becomeAnAdvisor();
+    if (!mounted) return;
+    if (res == 'done') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Application submitted successfully',
+            textAlign: TextAlign.center,
+          ),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      Future.delayed(const Duration(seconds: 2), () {
+        Navigator.pop(context);
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Something went wrong',
+            textAlign: TextAlign.center,
+          ),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Future<void> submit(String type) async {
     final authProvider = Provider.of<AuthService>(context, listen: false);
 
+    if (type == 'submit' && progress < 75 && isAdvisorSetup) {
+      showDialog(
+        context: context,
+        builder: ((context) {
+          return LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                content: SizedBox(
+                  height: constraints.maxHeight * 0.3,
+                  width: constraints.maxWidth * 0.8,
+                  child: BecomeAdvisorModal(
+                    progress: progress,
+                    type: BecomeAdvisorModalType.submitWarning,
+                  ),
+                ),
+                actions: [
+                  OutlinedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text(
+                      'Keep Editing',
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      submit('save');
+                    },
+                    child: const Text(
+                      'Save Progress',
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+        }),
+      );
+      return;
+    }
+
     setState(() {
-      isLoading = true;
+      if (type == 'submit') {
+        isLoading = true;
+      } else {
+        isSaving = true;
+      }
     });
+
     Map<String, dynamic> data = {
       'picture': userProfilePicture,
-      'title': user.title,
-      'bio': user.bio,
-      'country': user.country,
-      'education': user.education.map((e) {
+      'title': userTitle,
+      'bio': userBio,
+      'country': userCountry,
+      'education': userEducation.map((e) {
         return {
           'name': e.name,
           'level': e.level,
@@ -134,7 +256,7 @@ class _SetupScreenState extends State<SetupScreen> {
           'endDate': e.endDate?.toIso8601String(),
         };
       }).toList(),
-      'experience': user.experience.map((e) {
+      'experience': userExperience.map((e) {
         return {
           'name': e.name,
           'type': e.type,
@@ -144,18 +266,50 @@ class _SetupScreenState extends State<SetupScreen> {
           'endDate': e.endDate?.toIso8601String(),
         };
       }).toList(),
-      'languages': user.languages,
+      'languages': userLanguages,
       'skills': skills,
     };
 
     final res = await authProvider.updateUser(data);
     if (!mounted) return;
     if (res == 'done') {
-      Navigator.of(context).pop();
+      if (type == 'submit') {
+        if (isAdvisorSetup) {
+          apply();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Profile submitted successfully',
+                textAlign: TextAlign.center,
+              ),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+          Future.delayed(const Duration(seconds: 2), () {
+            Navigator.pop(context);
+          });
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Saved successfully',
+              textAlign: TextAlign.center,
+            ),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Somthing went wrong'),
+          content: Text(
+            'Somthing went wrong',
+            textAlign: TextAlign.center,
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -163,6 +317,7 @@ class _SetupScreenState extends State<SetupScreen> {
 
     setState(() {
       isLoading = false;
+      isSaving = false;
     });
   }
 
@@ -184,11 +339,20 @@ class _SetupScreenState extends State<SetupScreen> {
   @override
   void didChangeDependencies() {
     if (isInit) return;
-    user = ModalRoute.of(context)!.settings.arguments as User;
+    var args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    user = args['user'];
+    isAdvisorSetup = args['isAdvisorSetup'];
+    userTitle = user.title;
     titleController.text = user.title;
+    userBio = user.bio;
     skills = user.skills;
     countryController.text = user.country;
     userProfilePicture = user.picture ?? '';
+    userEducation = user.education;
+    userExperience = user.experience;
+    userLanguages = user.languages;
+    userCountry = user.country;
     isInit = true;
     super.didChangeDependencies();
   }
@@ -203,8 +367,11 @@ class _SetupScreenState extends State<SetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(
-        extended: false,
+      appBar: AppBar(
+        title:
+            isAdvisorSetup ? const Text('Become an advisor') : const FullLogo(),
+        centerTitle: true,
+        backgroundColor: Colors.white,
       ),
       body: Column(
         children: [
@@ -223,6 +390,9 @@ class _SetupScreenState extends State<SetupScreen> {
             setCurrentPage: setCurrentPage,
             submit: submit,
             isLoading: isLoading,
+            isSaving: isSaving,
+            isAdvisorSetup: isAdvisorSetup,
+            progress: progress,
           ),
         ],
       ),
@@ -245,7 +415,7 @@ class _SetupScreenState extends State<SetupScreen> {
             controller: titleController,
             onChanged: (value) {
               setState(() {
-                user.title = value;
+                userTitle = value;
               });
             },
           ),
@@ -253,7 +423,7 @@ class _SetupScreenState extends State<SetupScreen> {
           const FormTitle(title: 'Tell us about yourself'),
           const SizedBox(height: 12),
           BioForm(
-            userBio: user.bio,
+            userBio: userBio,
             updateBio: updateBio,
           ),
         ],
@@ -274,7 +444,7 @@ class _SetupScreenState extends State<SetupScreen> {
             isInSetup: true,
           ),
           const SizedBox(height: 12),
-          for (var education in user.education)
+          for (var education in userEducation)
             Stack(
               children: [
                 Card(
@@ -311,7 +481,7 @@ class _SetupScreenState extends State<SetupScreen> {
                     ),
                     onTap: () {
                       setState(() {
-                        user.education.remove(education);
+                        userEducation.remove(education);
                       });
                     },
                   ),
@@ -327,7 +497,7 @@ class _SetupScreenState extends State<SetupScreen> {
             isInSetup: true,
           ),
           const SizedBox(height: 12),
-          for (var experience in user.experience)
+          for (var experience in userExperience)
             Stack(
               children: [
                 Card(
@@ -364,7 +534,7 @@ class _SetupScreenState extends State<SetupScreen> {
                     ),
                     onTap: () {
                       setState(() {
-                        user.experience.remove(experience);
+                        userExperience.remove(experience);
                       });
                     },
                   ),
@@ -379,8 +549,8 @@ class _SetupScreenState extends State<SetupScreen> {
   Widget _buildThirdScreen() {
     return SkillsForm(
       skills: skills,
-      education: user.education,
-      experience: user.experience,
+      education: userEducation,
+      experience: userExperience,
     );
   }
 
@@ -398,7 +568,7 @@ class _SetupScreenState extends State<SetupScreen> {
           const FormTitle(title: 'Languages'),
           const SizedBox(height: 12),
           LanguageForm(
-            languages: user.languages,
+            languages: userLanguages,
           ),
         ],
       ),

@@ -127,6 +127,17 @@ class MyApp extends StatelessWidget {
                   linearTrackColor:
                       Theme.of(context).colorScheme.secondaryColor,
                 ),
+                snackBarTheme: const SnackBarThemeData(
+                  contentTextStyle: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                  ),
+                  behavior: SnackBarBehavior.floating,
+                ),
               ),
               routes: {
                 AuthScreen.routeName: (context) => const AuthScreen(),

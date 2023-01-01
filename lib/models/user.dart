@@ -24,6 +24,7 @@ class User {
   String? questionsInstructions;
   Map<String, dynamic> questions;
   int newQuestionsCount;
+  dynamic advisorStatus;
   User({
     required this.id,
     required this.name,
@@ -46,6 +47,7 @@ class User {
     this.questionsInstructions,
     required this.questions,
     required this.newQuestionsCount,
+    this.advisorStatus,
   });
 
   //define a factory constructor to create a User object from a json object
@@ -70,6 +72,7 @@ class User {
       verified: json['verified'],
       requestSettings: json['request_settings'],
       questionsInstructions: json['questionsInstructions'],
+      advisorStatus: json['advisorStatus'] ?? false,
       questions: json['questions'] ??
           {
             'sent': [],
@@ -77,6 +80,36 @@ class User {
           },
       newQuestionsCount: json['newQuestionsCount'] ?? 0,
     );
+  }
+
+  int get progress {
+    int progress = 0;
+    if (title != '') {
+      progress += 5;
+    }
+    if (bio != '') {
+      progress += 15;
+    }
+    if (picture != null) {
+      progress += 15;
+    }
+    if (skills.isNotEmpty) {
+      for (var i = 0; i < skills.length; i++) {
+        if (skills[i].educations.isNotEmpty ||
+            skills[i].experiences.isNotEmpty) {
+          progress += 10;
+        } else {
+          progress += 5;
+        }
+      }
+    }
+    if (experience.isNotEmpty) {
+      progress += experience.length * 5;
+    }
+    if (country != '') {
+      progress += 5;
+    }
+    return progress;
   }
 }
 

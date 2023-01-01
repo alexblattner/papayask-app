@@ -5,12 +5,18 @@ class Footer extends StatelessWidget {
   final Function setCurrentPage;
   final Function submit;
   final bool isLoading;
+  final bool isSaving;
+  final bool isAdvisorSetup;
+  final int progress;
   const Footer({
     super.key,
     required this.currentPage,
     required this.setCurrentPage,
     required this.submit,
     required this.isLoading,
+    required this.isSaving,
+    required this.isAdvisorSetup,
+    required this.progress,
   });
 
   @override
@@ -25,7 +31,28 @@ class Footer extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            
+            if (isAdvisorSetup)
+              ElevatedButton(
+                onPressed: () {
+                  submit('save');
+                },
+                child: Row(
+                  children: [
+                    Text('SAVE ($progress%)'),
+                    if (isSaving) const SizedBox(width: 8),
+                    if (isSaving)
+                      const SizedBox(
+                        height: 16,
+                        width: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            const Spacer(),
             TextButton(
               onPressed: () {
                 if (currentPage > 1) {
@@ -40,13 +67,19 @@ class Footer extends StatelessWidget {
                 if (currentPage < 4) {
                   setCurrentPage(currentPage + 1);
                 } else {
-                  submit();
+                  submit('submit');
                 }
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(currentPage == 4 ? 'FINISH' : 'NEXT'),
+                  Text(
+                    currentPage < 4
+                        ? 'NEXT'
+                        : isAdvisorSetup
+                            ? 'SUBMIT'
+                            : 'SAVE',
+                  ),
                   if (isLoading) const SizedBox(width: 8),
                   if (isLoading)
                     const SizedBox(
