@@ -1,5 +1,6 @@
 import 'package:papayask_app/models/education.dart';
 import 'package:papayask_app/models/experience.dart';
+import 'package:papayask_app/models/question.dart';
 import 'package:papayask_app/models/skill.dart';
 
 class User {
@@ -22,8 +23,7 @@ class User {
   bool verified;
   Map<String, dynamic>? requestSettings;
   String? questionsInstructions;
-  Map<String, dynamic> questions;
-  int newQuestionsCount;
+  Map<String, List<Question>> questions;
   dynamic advisorStatus;
   User({
     required this.id,
@@ -46,19 +46,18 @@ class User {
     this.requestSettings,
     this.questionsInstructions,
     required this.questions,
-    required this.newQuestionsCount,
     this.advisorStatus,
   });
 
   //define a factory constructor to create a User object from a json object
   factory User.fromJson(Map<String, dynamic> json) {
-    return User(
+    User user = User(
       id: json['_id'],
       name: json['name'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
       confirmed: json['confirmed'],
-      title: json['title'],
+      title: json['title'] ?? '',
       uid: json['uid'],
       reputation: json['reputation'] ?? 0,
       isSetUp: json['isSetUp'],
@@ -68,18 +67,17 @@ class User {
       experience: getExperience(json['experience']),
       education: getEducation(json['education']),
       languages: json['languages'],
-      country: json['country'],
+      country: json['country'] ?? '',
       verified: json['verified'],
       requestSettings: json['request_settings'],
       questionsInstructions: json['questionsInstructions'],
       advisorStatus: json['advisorStatus'] ?? false,
-      questions: json['questions'] ??
-          {
-            'sent': [],
-            'received': [],
-          },
-      newQuestionsCount: json['newQuestionsCount'] ?? 0,
+      questions: {
+        'sent': [],
+        'received': [],
+      },
     );
+    return user;
   }
 
   int get progress {

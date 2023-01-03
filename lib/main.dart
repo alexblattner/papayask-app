@@ -1,9 +1,14 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_config/flutter_config.dart';
 import 'package:provider/provider.dart';
 
+import 'package:papayask_app/utils/awesome_notifications_service.dart';
+import 'package:papayask_app/questions/questions_service.dart';
+import 'package:papayask_app/theme/app_theme.dart';
+import 'package:papayask_app/questions/questions_screen.dart';
 import 'package:papayask_app/profile/setup/setup_screen.dart';
 import 'package:papayask_app/profile/update_profile.dart';
 import 'package:papayask_app/auth/screens/auth_screen.dart';
@@ -12,7 +17,6 @@ import 'package:papayask_app/firebase_options.dart';
 import 'package:papayask_app/main/main_screen.dart';
 import 'package:papayask_app/profile/profile.dart';
 import 'package:papayask_app/splash_screen.dart';
-import 'package:papayask_app/theme/colors.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,12 +25,36 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await FlutterConfig.loadEnvVariables();
-  runApp(MyApp());
+  AwesomeNotificationsService.initialize();
+  runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  MyApp({super.key});
+class MyApp extends StatefulWidget {
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
+  const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   final ThemeData theme = ThemeData();
+
+  @override
+  void initState() {
+    AwesomeNotifications().setListeners(
+        onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+        onNotificationCreatedMethod:
+            NotificationController.onNotificationCreatedMethod,
+        onNotificationDisplayedMethod:
+            NotificationController.onNotificationDisplayedMethod,
+        onDismissActionReceivedMethod:
+            NotificationController.onDismissActionReceivedMethod);
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -38,112 +66,22 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProvider(
             create: (_) => AuthService(),
           ),
+          ChangeNotifierProvider(
+            create: (_) => QuestionsService(),
+          ),
         ],
         child: Consumer<AuthService>(
           builder: (context, auth, _) {
             return MaterialApp(
+              navigatorKey: MyApp.navigatorKey,
               home: const HomeController(),
-              theme: ThemeData(
-                inputDecorationTheme: InputDecorationTheme(
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade300,
-                      width: 2,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.primaryColor,
-                      width: 2,
-                    ),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
-                    borderSide: const BorderSide(color: Colors.red, width: 1),
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
-                    borderSide: const BorderSide(color: Colors.red, width: 2),
-                  ),
-                  labelStyle: const TextStyle(
-                    color: Colors.grey,
-                  ),
-                  floatingLabelStyle: TextStyle(
-                    color: Theme.of(context).colorScheme.primaryColor,
-                  ),
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-                ),
-                appBarTheme: AppBarTheme(
-                  elevation: 1,
-                  color: Colors.white,
-                  titleTextStyle: TextStyle(
-                    color: Theme.of(context).colorScheme.primaryColor,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  iconTheme: IconThemeData(
-                    color: Theme.of(context).colorScheme.primaryColor,
-                  ),
-                ),
-                elevatedButtonTheme: ElevatedButtonThemeData(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    textStyle: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                textButtonTheme: TextButtonThemeData(
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    foregroundColor: Theme.of(context).colorScheme.primaryColor,
-                  ),
-                ),
-                outlinedButtonTheme: OutlinedButtonThemeData(
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    side: BorderSide(
-                      color: Theme.of(context).colorScheme.primaryColor,
-                      width: 1,
-                    ),
-                    foregroundColor: Theme.of(context).colorScheme.primaryColor,
-                  ),
-                ),
-                progressIndicatorTheme: ProgressIndicatorThemeData(
-                  color: Theme.of(context).colorScheme.primaryColor,
-                  linearTrackColor:
-                      Theme.of(context).colorScheme.secondaryColor,
-                ),
-                snackBarTheme: const SnackBarThemeData(
-                  contentTextStyle: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                  ),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              ),
+              theme: appTheme(context),
               routes: {
                 AuthScreen.routeName: (context) => const AuthScreen(),
                 MainScreen.routeName: (context) => const MainScreen(),
                 ProfileScreen.routeName: (context) => const ProfileScreen(),
                 SetupScreen.routeName: (context) => const SetupScreen(),
+                QuestionsScreen.routeName: (context) => const QuestionsScreen(),
                 ProfileUpdatePage.routeName: (context) =>
                     const ProfileUpdatePage(),
               },
@@ -172,5 +110,34 @@ class HomeController extends StatelessWidget {
         return const SplashScreen();
       },
     );
+  }
+}
+
+class NotificationController {
+  /// Use this method to detect when a new notification or a schedule is created
+  @pragma("vm:entry-point")
+  static Future<void> onNotificationCreatedMethod(
+      ReceivedNotification receivedNotification) async {}
+
+  /// Use this method to detect every time that a new notification is displayed
+  @pragma("vm:entry-point")
+  static Future<void> onNotificationDisplayedMethod(
+      ReceivedNotification receivedNotification) async {}
+
+  /// Use this method to detect if the user dismissed a notification
+  @pragma("vm:entry-point")
+  static Future<void> onDismissActionReceivedMethod(
+      ReceivedAction receivedAction) async {}
+
+  /// Use this method to detect when the user taps on a notification or action button
+  @pragma("vm:entry-point")
+  static Future<void> onActionReceivedMethod(
+      ReceivedAction receivedAction) async {
+    // Navigate into pages, avoiding to open the notification details page over another details page already opened
+    MyApp.navigatorKey.currentState?.pushNamedAndRemoveUntil(
+        QuestionsScreen.routeName,
+        (route) =>
+            (route.settings.name != QuestionsScreen.routeName) || route.isFirst,
+        arguments: receivedAction);
   }
 }

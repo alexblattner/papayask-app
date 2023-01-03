@@ -1,6 +1,10 @@
+import 'package:badges/badges.dart' as badge_lib;
 import 'package:flutter/material.dart';
+import 'package:papayask_app/main/main_screen.dart';
 import 'package:provider/provider.dart';
 
+import 'package:papayask_app/questions/questions_screen.dart';
+import 'package:papayask_app/questions/questions_service.dart';
 import 'package:papayask_app/auth/auth_service.dart';
 import 'package:papayask_app/profile/profile.dart';
 import 'package:papayask_app/shared/app_icon.dart';
@@ -10,9 +14,19 @@ import 'package:papayask_app/theme/colors.dart';
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
 
+  Color textColor(String route, BuildContext context) {
+    final currentRoute = ModalRoute.of(context)?.settings.name;
+    if (currentRoute == route || (currentRoute == '/home' && route == '/')) {
+      return Theme.of(context).colorScheme.primaryColor;
+    }
+    return Colors.black;
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthService>(context);
+    final questionsProvider = Provider.of<QuestionsService>(context);
+    int newQuestions = questionsProvider.newQuestionsCount;
     return Drawer(
       child: SafeArea(
           child: Column(
@@ -28,14 +42,37 @@ class AppDrawer extends StatelessWidget {
               child: Column(
                 children: [
                   ListTile(
+                    leading: Icon(
+                      Icons.home_outlined,
+                      size: 28,
+                      color: Theme.of(context).colorScheme.primaryColor,
+                    ),
+                    title: Text(
+                      'Home',
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: textColor('/', context),
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pushNamed(
+                        MainScreen.routeName,
+                      );
+                    },
+                  ),
+                  ListTile(
                     leading: AppIcon(
                       src: 'user',
                       size: 24,
                       color: Theme.of(context).colorScheme.primaryColor,
                     ),
-                    title: const Text(
+                    title: Text(
                       'Profile',
-                      style: TextStyle(fontSize: 20),
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: textColor('/profile', context),
+                      ),
                     ),
                     onTap: () {
                       Navigator.of(context).pop();
@@ -46,14 +83,32 @@ class AppDrawer extends StatelessWidget {
                     },
                   ),
                   ListTile(
-                    leading: AppIcon(
-                      src: 'send',
-                      size: 24,
-                      color: Theme.of(context).colorScheme.primaryColor,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pushNamed(
+                        QuestionsScreen.routeName,
+                      );
+                    },
+                    leading: badge_lib.Badge(
+                      position: badge_lib.BadgePosition.topEnd(
+                        top: -15,
+                        end: -10,
+                      ),
+                      badgeContent: Text(
+                        newQuestions.toString(),
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      child: AppIcon(
+                        src: 'send',
+                        size: 24,
+                        color: Theme.of(context).colorScheme.primaryColor,
+                      ),
                     ),
-                    title: const Text(
-                      'Requests',
-                      style: TextStyle(fontSize: 20),
+                    title: Text(
+                      'Questions',
+                      style: TextStyle(
+                          fontSize: 20,
+                          color: textColor('/questions', context)),
                     ),
                   ),
                   ListTile(

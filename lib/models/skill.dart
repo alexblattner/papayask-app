@@ -1,7 +1,7 @@
 class Skill {
   String name;
-  List<Map<String,dynamic>> educations;
-  List<Map<String,dynamic>> experiences;
+  List<Map<String, dynamic>> educations;
+  List<Map<String, dynamic>> experiences;
 
   Skill({
     required this.name,
@@ -10,11 +10,16 @@ class Skill {
   });
 
   factory Skill.fromJson(Map<String, dynamic> json) {
-    return Skill(
+    Skill skill = Skill(
       name: json['name'],
-      educations: json['educations'].map<Map<String,dynamic>>((e) => e as Map<String,dynamic>).toList(),
-      experiences: json['experiences'].map<Map<String,dynamic>>((e) => e as Map<String,dynamic>).toList(),
+      educations: json['educations']
+          .map<Map<String, dynamic>>((e) => e as Map<String, dynamic>)
+          .toList(),
+      experiences: json['experiences']
+          .map<Map<String, dynamic>>((e) => e as Map<String, dynamic>)
+          .toList(),
     );
+    return skill;
   }
 
   Map<String, dynamic> toJson() {

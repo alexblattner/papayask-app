@@ -10,11 +10,11 @@ class FullLogo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SvgPicture.asset('assets/icons/logo.svg', width: 30, height: 30),
-        const SizedBox(width: 10),
+        SvgPicture.asset('assets/icons/logo.svg', width: 26, height: 26),
         Text(
-          'Papayask',
+          'apayask',
           style: TextStyle(
             color: Theme.of(context).colorScheme.primaryColor,
             fontSize: 26,

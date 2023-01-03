@@ -1,6 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:papayask_app/utils/sse.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_config/flutter_config.dart';
+
+import 'package:papayask_app/utils/awesome_notifications_service.dart';
+import 'package:papayask_app/questions/questions_service.dart';
 import 'package:papayask_app/auth/screens/auth_screen.dart';
 import 'package:papayask_app/profile/become_advisor_modal.dart';
 import 'package:papayask_app/profile/setup/setup_screen.dart';
@@ -9,7 +15,7 @@ import 'package:papayask_app/shared/app_drawer.dart';
 import 'package:papayask_app/shared/appbar.dart';
 
 class MainScreen extends StatefulWidget {
-  static const routeName = '/main';
+  static const routeName = '/home';
   const MainScreen({super.key});
 
   @override
@@ -146,6 +152,49 @@ class MainScreenState extends State<MainScreen> {
         );
       }),
     );
+  }
+
+  Future<void> connectToEventSource() async {
+    final authProvider = Provider.of<AuthService>(context, listen: false);
+    if (authProvider.authUser == null) return;
+    final questionProvider =
+        Provider.of<QuestionsService>(context, listen: false);
+    final stream = Sse.connect(
+            uri: Uri.parse(
+                "${FlutterConfig.get('API_URL')}/realtime-notifications/${authProvider.authUser!.id}"))
+        .stream;
+    stream.listen((event) {
+      if (event.toString() != 'connection opened') {
+        final data = jsonDecode(event.toString());
+        final message = {
+          'body': '${data['sender']['name']} sent you a question',
+          'title': 'New Question',
+          'id': data['_id'],
+        };
+        AwesomeNotificationsService.showNotification(
+          title: message['title'],
+          body: message['body'],
+          payload: message['id'],
+        );
+      }
+      questionProvider.fetchQuestions();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    final questionProvider =
+        Provider.of<QuestionsService>(context, listen: false);
+    if (questionProvider.questions.isEmpty) {
+      connectToEventSource();
+    }
+
+    super.didChangeDependencies();
   }
 
   @override

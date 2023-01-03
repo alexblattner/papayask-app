@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:papayask_app/questions/questions_service.dart';
 import 'package:provider/provider.dart';
+import 'package:badges/badges.dart' as badge_lib;
 
+import 'package:papayask_app/shared/app_drawer.dart';
 import 'package:papayask_app/profile/skill_badge.dart';
 import 'package:papayask_app/shared/company_logo.dart';
 import 'package:papayask_app/shared/university_logo.dart';
@@ -45,9 +48,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+     final questionsProvider = Provider.of<QuestionsService>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(profileUser?.name ?? ''),
+        leading: Builder(builder: (context) {
+              return IconButton(
+                icon: badge_lib.Badge(
+                  showBadge: questionsProvider.newQuestionsCount > 0,
+                  child: const Icon(Icons.menu),
+                ),
+                color: Theme.of(context).colorScheme.primaryColor,
+                onPressed: Scaffold.of(context).openDrawer,
+              );
+            }),
         actions: [
           if (isOwnProfile)
             IconButton(
@@ -65,6 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
         ],
       ),
+      drawer: const AppDrawer(),
       body: profileUser == null
           ? Center(
               child: CircularProgressIndicator(

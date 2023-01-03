@@ -6,10 +6,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_config/flutter_config.dart';
+import 'package:papayask_app/questions/questions_service.dart';
 
 import '/models/user.dart' as user_model;
 
 class AuthService with ChangeNotifier {
+  final questionsService = QuestionsService();
   final _auth = FirebaseAuth.instance; //firebase auth instance
 
   Stream<User?> get authStateChanges =>
@@ -53,6 +55,7 @@ class AuthService with ChangeNotifier {
       });
       if (res.statusCode == 200) {
         authUser = user_model.User.fromJson(jsonDecode(res.body));
+        authUser!.questions = questionsService.questions;
       } else {
         authUser = null;
       }
