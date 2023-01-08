@@ -85,6 +85,16 @@ ThemeData appTheme(BuildContext context) {
       color: Theme.of(context).colorScheme.primaryColor,
       linearTrackColor: Theme.of(context).colorScheme.secondaryColor,
     ),
+    dividerTheme: DividerThemeData(
+      color: Colors.grey.shade400,
+      thickness: 1,
+      space: 25,
+    ),
+    radioTheme: RadioThemeData(
+      fillColor: MaterialStateProperty.all(
+        Theme.of(context).colorScheme.primaryColor,
+      ),
+    ),
     snackBarTheme: const SnackBarThemeData(
       contentTextStyle: TextStyle(
         color: Colors.white,

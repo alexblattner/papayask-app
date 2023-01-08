@@ -98,6 +98,7 @@ class AppDrawer extends StatelessWidget {
                         newQuestions.toString(),
                         style: const TextStyle(color: Colors.white),
                       ),
+                      showBadge: newQuestions > 0,
                       child: AppIcon(
                         src: 'send',
                         size: 24,
@@ -107,8 +108,9 @@ class AppDrawer extends StatelessWidget {
                     title: Text(
                       'Questions',
                       style: TextStyle(
-                          fontSize: 20,
-                          color: textColor('/questions', context)),
+                        fontSize: 20,
+                        color: textColor('/questions', context),
+                      ),
                     ),
                   ),
                   ListTile(

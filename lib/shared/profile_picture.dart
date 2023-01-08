@@ -5,14 +5,15 @@ import 'package:flutter_config/flutter_config.dart';
 class ProfilePicture extends StatelessWidget {
   final String src;
   final double size;
-  const ProfilePicture({super.key, required this.src, this.size = 250});
+  final bool isCircle;
+  const ProfilePicture({super.key, required this.src, this.size = 250, this.isCircle = false});
 
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: BoxConstraints.tightFor(width: size, height: size),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(isCircle ? size / 2 : 16),
         child: Container(
           decoration: BoxDecoration(
             color: Colors.grey[200],

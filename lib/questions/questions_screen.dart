@@ -2,10 +2,14 @@ import 'package:badges/badges.dart' as badge_lib;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:papayask_app/auth/auth_service.dart';
+import 'package:papayask_app/utils/time_passed.dart';
+import 'package:papayask_app/questions/question_screen.dart';
+import 'package:papayask_app/shared/app_icon.dart';
 import 'package:papayask_app/shared/app_drawer.dart';
 import 'package:papayask_app/questions/questions_service.dart';
 import 'package:papayask_app/shared/profile_picture.dart';
-import 'package:papayask_app/shared/relative_time_text.dart';
+import 'package:papayask_app/utils/relative_time_text.dart';
 import 'package:papayask_app/theme/colors.dart';
 
 class QuestionsScreen extends StatefulWidget {
@@ -17,9 +21,24 @@ class QuestionsScreen extends StatefulWidget {
 }
 
 class _QuestionsScreenState extends State<QuestionsScreen> {
+  Future<void> refreshQuestions() async {
+    final questionsService =
+        Provider.of<QuestionsService>(context, listen: false);
+    final authProvider = Provider.of<AuthService>(context, listen: false);
+    await questionsService.fetchQuestions();
+    int newQuestionsCount = questionsService.questions['received']!
+        .where((element) =>
+            element.status['action'] == 'pending' &&
+            !isTimePassed(element, authProvider.authUser!))
+        .toList()
+        .length;
+    questionsService.updateNewQuestionsCount(newQuestionsCount);
+  }
+
   @override
   Widget build(BuildContext context) {
     final questionsProvider = Provider.of<QuestionsService>(context);
+    final authProvider = Provider.of<AuthService>(context);
     final questions = questionsProvider.questions;
     return DefaultTabController(
       length: 2,
@@ -53,7 +72,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
           body: TabBarView(
             children: [
               RefreshIndicator(
-                onRefresh: questionsProvider.fetchQuestions,
+                onRefresh: refreshQuestions,
                 child: ListView.separated(
                   separatorBuilder: (context, index) => Container(
                     width: double.infinity,
@@ -67,7 +86,14 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                   itemBuilder: (context, index) {
                     final question = questions['received']?[index];
                     return ListTile(
-                      tileColor: question?.status['action'] == 'pending'
+                      onTap: () {
+                        Navigator.of(context).pushNamed(
+                          QuestionScreen.routeName,
+                          arguments: question,
+                        );
+                      },
+                      tileColor: question?.status['action'] == 'pending' &&
+                              !isTimePassed(question!, authProvider.authUser!)
                           ? Theme.of(context)
                               .colorScheme
                               .primaryColor
@@ -90,6 +116,14 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                           RelativeTimeText(dateTime: question!.createdAt),
                         ],
                       ),
+                      trailing: SizedBox(
+                        height: 50,
+                        child: AppIcon(
+                          src: 'star',
+                          size: 24,
+                          color: Theme.of(context).colorScheme.primaryColor,
+                        ),
+                      ),
                     );
                   },
                 ),
@@ -107,6 +141,12 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                 itemBuilder: (context, index) {
                   final question = questions['sent']?[index];
                   return ListTile(
+                    onTap: () {
+                      Navigator.of(context).pushNamed(
+                        QuestionScreen.routeName,
+                        arguments: question,
+                      );
+                    },
                     leading: ProfilePicture(
                       src: question?.receiver.picture ?? '',
                       size: 50,
@@ -123,6 +163,14 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                         ),
                         RelativeTimeText(dateTime: question!.createdAt),
                       ],
+                    ),
+                    trailing: SizedBox(
+                      height: 50,
+                      child: AppIcon(
+                        src: 'star',
+                        size: 24,
+                        color: Theme.of(context).colorScheme.primaryColor,
+                      ),
                     ),
                   );
                 },

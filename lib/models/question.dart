@@ -1,3 +1,4 @@
+import 'package:papayask_app/models/note.dart';
 import 'package:papayask_app/models/user.dart';
 
 class Question {
@@ -8,6 +9,7 @@ class Question {
   DateTime createdAt;
   DateTime updatedAt;
   Map<String, dynamic> status;
+  List<Note> notes;
 
   Question({
     required this.id,
@@ -17,6 +19,7 @@ class Question {
     required this.createdAt,
     required this.updatedAt,
     required this.status,
+    required this.notes,
   });
 
   factory Question.fromJson(Map<String, dynamic> json) {
@@ -28,6 +31,10 @@ class Question {
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
       status: Map<String, dynamic>.from(json['status']),
+      notes: (json['notes'] as List)
+          .map((e) => Note.fromJson(e))
+          .toList()
+          .cast<Note>(),
     );
     return question;
   }

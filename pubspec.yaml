@@ -29,6 +29,8 @@ dependencies:
   badges: ^2.0.3
   universal_html: ^2.0.8
   awesome_notifications: any
+  flutter_widget_from_html_core: ^0.9.0
+  html_editor_enhanced: ^2.5.0
   # flutter_facebook_auth: ^5.0.1
 
 dev_dependencies:

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_config/flutter_config.dart';
 import 'package:provider/provider.dart';
 
+import 'package:papayask_app/questions/question_screen.dart';
 import 'package:papayask_app/utils/awesome_notifications_service.dart';
 import 'package:papayask_app/questions/questions_service.dart';
 import 'package:papayask_app/theme/app_theme.dart';
@@ -82,6 +83,7 @@ class _MyAppState extends State<MyApp> {
                 ProfileScreen.routeName: (context) => const ProfileScreen(),
                 SetupScreen.routeName: (context) => const SetupScreen(),
                 QuestionsScreen.routeName: (context) => const QuestionsScreen(),
+                QuestionScreen.routeName: (context) => const QuestionScreen(),
                 ProfileUpdatePage.routeName: (context) =>
                     const ProfileUpdatePage(),
               },

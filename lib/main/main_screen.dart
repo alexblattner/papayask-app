@@ -1,10 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:papayask_app/utils/sse.dart';
+import 'package:papayask_app/utils/time_passed.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_config/flutter_config.dart';
 
+import 'package:papayask_app/utils/sse.dart';
 import 'package:papayask_app/utils/awesome_notifications_service.dart';
 import 'package:papayask_app/questions/questions_service.dart';
 import 'package:papayask_app/auth/screens/auth_screen.dart';
@@ -163,7 +164,7 @@ class MainScreenState extends State<MainScreen> {
             uri: Uri.parse(
                 "${FlutterConfig.get('API_URL')}/realtime-notifications/${authProvider.authUser!.id}"))
         .stream;
-    stream.listen((event) {
+    stream.listen((event) async {
       if (event.toString() != 'connection opened') {
         final data = jsonDecode(event.toString());
         final message = {
@@ -177,7 +178,14 @@ class MainScreenState extends State<MainScreen> {
           payload: message['id'],
         );
       }
-      questionProvider.fetchQuestions();
+      await questionProvider.fetchQuestions();
+      int newQuestionsCount = questionProvider.questions['received']!
+          .where((element) =>
+              element.status['action'] == 'pending' &&
+              !isTimePassed(element, authProvider.authUser!))
+          .toList()
+          .length;
+      questionProvider.updateNewQuestionsCount(newQuestionsCount);
     });
   }
 
