@@ -5,19 +5,23 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_config/flutter_config.dart';
-import 'package:papayask_app/models/note.dart';
 
+import 'package:papayask_app/models/note.dart';
 import 'package:papayask_app/models/question.dart';
 import 'package:papayask_app/models/user.dart' as user_model;
 
 class QuestionsService with ChangeNotifier {
   final _auth = FirebaseAuth.instance;
   final Map<String, List<Question>> _questions = {};
-  int newQuestionsCount = 0;
-
-  void updateNewQuestionsCount(int count) {
-    newQuestionsCount = count;
-    notifyListeners();
+  int get newQuestionsCount {
+    if (_questions['received'] == null) {
+      return 0;
+    }
+    return _questions['received']!
+        .where((element) =>
+            element.status['action'] == 'pending' &&
+            element.endAnswerTime.isAfter(DateTime.now()))
+        .length;
   }
 
   Future<void> fetchQuestions() async {
@@ -66,12 +70,13 @@ class QuestionsService with ChangeNotifier {
     try {
       final res = await http.post(
         Uri.parse(
-            '${FlutterConfig.get('API_URL')}/question/update-status/$questionId/'),
+            '${FlutterConfig.get('API_URL')}/questions/update-status/$questionId/'),
         body: {'reason': reason, 'action': 'rejected'},
         headers: {
           'Authorization': 'Bearer $token',
         },
       );
+      print(res.body);
 
       if (res.statusCode == 200) {
         //replace question in list
@@ -98,7 +103,7 @@ class QuestionsService with ChangeNotifier {
     try {
       final res = await http.post(
         Uri.parse(
-            '${FlutterConfig.get('API_URL')}/question/update-status/$questionId/'),
+            '${FlutterConfig.get('API_URL')}/questions/update-status/$questionId/'),
         body: {'action': 'accepted'},
         headers: {
           'Authorization': 'Bearer $token',
@@ -174,12 +179,12 @@ class QuestionsService with ChangeNotifier {
     if (token is! String) {
       return 'not logged in';
     }
-    if (content.isNotEmpty) {
+    if (content.isNotEmpty && content != '<p><br></p>') {
       await addNote(questionId, content, user);
     }
     try {
       final res = await http.post(
-        Uri.parse('${FlutterConfig.get('API_URL')}/question/finish'),
+        Uri.parse('${FlutterConfig.get('API_URL')}/questions/finish'),
         body: {'questionId': questionId},
         headers: {
           'Authorization': 'Bearer $token',

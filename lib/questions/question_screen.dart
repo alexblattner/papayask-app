@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
-import 'package:papayask_app/models/user.dart';
-import 'package:papayask_app/shared/app_icon.dart';
+import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:provider/provider.dart';
 
+import 'package:papayask_app/models/user.dart';
+import 'package:papayask_app/questions/editor.dart';
+import 'package:papayask_app/shared/app_icon.dart';
 import 'package:papayask_app/auth/auth_service.dart';
 import 'package:papayask_app/models/note.dart';
 import 'package:papayask_app/models/question.dart';
@@ -29,14 +31,15 @@ class QuestionScreen extends StatefulWidget {
 }
 
 class _QuestionScreenState extends State<QuestionScreen> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  HtmlEditorController controller = HtmlEditorController();
+  HtmlEditorController editController = HtmlEditorController();
+  var content = '';
+  var editingContent = '';
   Question? question;
   String rejectReason = '';
   var isLoading = false;
   var isDeleting = false;
   String editingNote = '';
-  final TextEditingController noteController = TextEditingController();
-  final TextEditingController editingNoteController = TextEditingController();
 
   @override
   void didChangeDependencies() {
@@ -55,10 +58,9 @@ class _QuestionScreenState extends State<QuestionScreen> {
   }
 
   bool get isQuestionActive {
-    final authService = Provider.of<AuthService>(context, listen: false);
     return question!.status['action'] == 'accepted' &&
         question!.status['done'] == false &&
-        !isTimePassed(question!, authService.authUser!);
+        !isTimePassed(question!);
   }
 
   void rejectQuestion(String questionId) {
@@ -147,11 +149,11 @@ class _QuestionScreenState extends State<QuestionScreen> {
         ),
       );
     }
+
     setState(() {
       isLoading = false;
+      content = '';
     });
-
-    noteController.clear();
   }
 
   Future<void> delete(Note note) async {
@@ -185,20 +187,23 @@ class _QuestionScreenState extends State<QuestionScreen> {
     }
     setState(() {
       isDeleting = false;
+      editingNote = '';
     });
   }
 
   Future<void> saveNote() async {
     Navigator.of(context).pop();
-    if (editingNote == '' && noteController.text.isEmpty ||
-        (editingNote != '' && editingNoteController.text.isEmpty)) return;
+    if (editingNote == '' && (content == '<p></br></p>' || content == '') ||
+        (editingNote != '' &&
+            (editingContent == '' || editingContent == '<p></br></p>'))) return;
+
     final questionsService =
         Provider.of<QuestionsService>(context, listen: false);
     final authUser = Provider.of<AuthService>(context, listen: false).authUser;
     if (editingNote == '') {
       questionsService.addNote(
         question!.id,
-        noteController.text,
+        content,
         authUser!,
       );
     } else {
@@ -206,15 +211,26 @@ class _QuestionScreenState extends State<QuestionScreen> {
           question!.notes.firstWhere((element) => element.id == editingNote);
       questionsService.updateNote(
         note,
-        editingNoteController.text,
+        editingContent,
       );
     }
+  }
+
+  void setContent(String value) {
+    setState(() {
+      content = value;
+    });
+  }
+
+  void setEditingContent(String value) {
+    setState(() {
+      editingContent = value;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final authUser = Provider.of<AuthService>(context).authUser;
-    final questionsService = Provider.of<QuestionsService>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -239,9 +255,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 children: [
                   if (showTimer)
                     CountdownTimer(
-                      startTime: question!.createdAt,
-                      days: authUser!.requestSettings!['time_limit']['days'],
-                      hours: authUser.requestSettings!['time_limit']['hours'],
+                      endTime: question!.endAnswerTime,
                     ),
                   const SizedBox(
                     height: 20,
@@ -297,7 +311,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                       ),
                     ),
                   if (question?.status['action'] == 'pending' &&
-                      !isTimePassed(question!, authUser!))
+                      !isTimePassed(question!))
                     Row(
                       children: [
                         Expanded(
@@ -362,10 +376,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
                                   GestureDetector(
                                     onTap: () {
                                       setState(() {
-                                        editingNoteController.text =
-                                            editingNote == note.id
-                                                ? ''
-                                                : note.content;
                                         editingNote = editingNote == note.id
                                             ? ''
                                             : note.id;
@@ -400,10 +410,9 @@ class _QuestionScreenState extends State<QuestionScreen> {
                               height: 20,
                             ),
                             editingNote == note.id
-                                ? TextField(
-                                    decoration: const InputDecoration(),
-                                    maxLines: null,
-                                    controller: editingNoteController,
+                                ? NoteEditor(
+                                    setContent: setEditingContent,
+                                    controller: editController,
                                   )
                                 : HtmlWidget(note.content),
                             const Divider(),
@@ -413,48 +422,44 @@ class _QuestionScreenState extends State<QuestionScreen> {
                   if (isQuestionActive && question?.receiver.id == authUser!.id)
                     Column(
                       children: [
-                        TextField(
-                          decoration: const InputDecoration(),
-                          maxLines: null,
-                          controller: noteController,
-                        ),
+                        if (editingNote == '')
+                          NoteEditor(
+                            setContent: setContent,
+                            controller: controller,
+                          ),
                         const SizedBox(
                           height: 16,
                         ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  sendNote(
-                                    question!.id,
-                                    noteController.text,
-                                    authUser,
-                                  );
-                                  noteController.clear();
-                                },
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Text('Send'),
-                                    if (isLoading)
-                                      const SizedBox(
-                                        width: 10,
-                                      ),
-                                    if (isLoading)
-                                      const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              sendNote(
+                                question!.id,
+                                content,
+                                authUser,
+                              );
+                            },
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text('Send'),
+                                if (isLoading)
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                if (isLoading)
+                                  const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ],
                     ),

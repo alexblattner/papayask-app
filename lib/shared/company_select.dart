@@ -21,7 +21,7 @@ class CompanySelect extends StatefulWidget {
 }
 
 class _CompanySelectState extends State<CompanySelect> {
-  Future<List<Map<String, dynamic>>> getUniversities(String query) async {
+  Future<List<Map<String, dynamic>>> getCompanies(String query) async {
     final res = await http
         .get(Uri.parse('${FlutterConfig.get('API_URL')}/company/$query'));
     final data = jsonDecode(res.body) as Map<String, dynamic>;
@@ -42,7 +42,7 @@ class _CompanySelectState extends State<CompanySelect> {
         ),
       ),
       suggestionsCallback: (pattern) async {
-        return await getUniversities(pattern);
+        return await getCompanies(pattern);
       },
       itemBuilder: (context, suggestion) {
         return ListTile(

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:papayask_app/questions/question_screen.dart';
 import 'package:papayask_app/questions/questions_service.dart';
-import 'package:provider/provider.dart';
 
 class RejectModal extends StatefulWidget {
   final String questionId;

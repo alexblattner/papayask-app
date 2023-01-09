@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badge_lib;
+import 'package:papayask_app/auth/auth_service.dart';
 import 'package:papayask_app/questions/questions_service.dart';
 
 import 'package:papayask_app/shared/full_logo.dart';
@@ -17,6 +18,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final questionsProvider = Provider.of<QuestionsService>(context);
+    final authProvider = Provider.of<AuthService>(context);
     return AppBar(
       title: title != null ? Text(title!) : const FullLogo(),
       centerTitle: true,
@@ -24,7 +26,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ? GestureDetector(
               onTap: Scaffold.of(context).openDrawer,
               child: badge_lib.Badge(
-                showBadge: questionsProvider.newQuestionsCount > 0,
+                showBadge: questionsProvider.newQuestionsCount > 0 ||
+                    authProvider.notificationsCount > 0,
                 position: badge_lib.BadgePosition.topEnd(top: 10, end: 6),
                 child: Icon(
                   Icons.menu,

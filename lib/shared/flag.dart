@@ -15,6 +15,9 @@ class _FlagState extends State<Flag> {
   var flag = '';
 
   Future<void> loadJson() async {
+    if (widget.country == '') {
+      return;
+    }
     final json = await rootBundle.loadString('assets/flags.json');
     final data = Map<String, dynamic>.from(jsonDecode(json));
     final country = data.entries.firstWhere((element) {

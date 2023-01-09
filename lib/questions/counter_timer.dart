@@ -3,15 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 class CountdownTimer extends StatefulWidget {
-  final DateTime startTime;
-  final int days;
-  final int hours;
+  final DateTime endTime;
+ 
 
   const CountdownTimer({
     super.key,
-    required this.startTime,
-    required this.days,
-    required this.hours,
+    required this.endTime,
   });
 
   @override
@@ -58,8 +55,7 @@ class CountdownTimerState extends State<CountdownTimer> {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final endTime =
-        widget.startTime.add(Duration(days: widget.days, hours: widget.hours));
+    final endTime = widget.endTime;
     final duration = endTime.difference(now);
     if (duration.isNegative) {
       return Row(

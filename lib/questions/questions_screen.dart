@@ -1,8 +1,8 @@
 import 'package:badges/badges.dart' as badge_lib;
 import 'package:flutter/material.dart';
+import 'package:papayask_app/models/question.dart';
 import 'package:provider/provider.dart';
 
-import 'package:papayask_app/auth/auth_service.dart';
 import 'package:papayask_app/utils/time_passed.dart';
 import 'package:papayask_app/questions/question_screen.dart';
 import 'package:papayask_app/shared/app_icon.dart';
@@ -21,24 +21,33 @@ class QuestionsScreen extends StatefulWidget {
 }
 
 class _QuestionsScreenState extends State<QuestionsScreen> {
-  Future<void> refreshQuestions() async {
-    final questionsService =
-        Provider.of<QuestionsService>(context, listen: false);
-    final authProvider = Provider.of<AuthService>(context, listen: false);
-    await questionsService.fetchQuestions();
-    int newQuestionsCount = questionsService.questions['received']!
-        .where((element) =>
-            element.status['action'] == 'pending' &&
-            !isTimePassed(element, authProvider.authUser!))
-        .toList()
-        .length;
-    questionsService.updateNewQuestionsCount(newQuestionsCount);
+ 
+  Map<String, dynamic> questionStatus(Question question) {
+    if (question.status['action'] == 'pending' && !isTimePassed(question)) {
+      return {
+        'text': 'Pending',
+        'color': Theme.of(context).colorScheme.primaryColor
+      };
+    } else if (question.status['action'] == 'pending' &&
+        isTimePassed(question)) {
+      return {'text': 'Timed out', 'color': Colors.red};
+    } else if (question.status['action'] == 'accepted' &&
+        !question.status['done'] &&
+        !isTimePassed(question)) {
+      return {'text': 'Accepted', 'color': Colors.green};
+    } else if (question.status['action'] == 'accepted' &&
+        question.status['done']) {
+      return {'text': 'Done', 'color': Colors.green};
+    } else if (question.status['action'] == 'rejected') {
+      return {'text': 'Rejected', 'color': Colors.red};
+    } else {
+      return {'text': '', 'color': Colors.transparent};
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final questionsProvider = Provider.of<QuestionsService>(context);
-    final authProvider = Provider.of<AuthService>(context);
     final questions = questionsProvider.questions;
     return DefaultTabController(
       length: 2,
@@ -72,7 +81,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
           body: TabBarView(
             children: [
               RefreshIndicator(
-                onRefresh: refreshQuestions,
+                onRefresh:questionsProvider.fetchQuestions,
                 child: ListView.separated(
                   separatorBuilder: (context, index) => Container(
                     width: double.infinity,
@@ -93,7 +102,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                         );
                       },
                       tileColor: question?.status['action'] == 'pending' &&
-                              !isTimePassed(question!, authProvider.authUser!)
+                              !isTimePassed(question!)
                           ? Theme.of(context)
                               .colorScheme
                               .primaryColor
@@ -104,16 +113,32 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                         size: 50,
                       ),
                       isThreeLine: true,
-                      title: Text(question?.sender.name ?? ''),
+                      title: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(question?.sender.name ?? ''),
+                          const VerticalDivider(
+                            width: 5,
+                            thickness: 10,
+                          ),
+                          Text(
+                            questionStatus(question!)['text'],
+                            style: TextStyle(
+                              color: questionStatus(question)['color'],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            question?.description ?? '',
+                            question.description,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 2,
                           ),
-                          RelativeTimeText(dateTime: question!.createdAt),
+                          RelativeTimeText(dateTime: question.createdAt),
                         ],
                       ),
                       trailing: SizedBox(
@@ -152,16 +177,32 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                       size: 50,
                     ),
                     isThreeLine: true,
-                    title: Text(question?.receiver.name ?? ''),
+                    title: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(question?.receiver.name ?? ''),
+                        const VerticalDivider(
+                          width: 5,
+                          thickness: 10,
+                        ),
+                        Text(
+                          questionStatus(question!)['text'],
+                          style: TextStyle(
+                            color: questionStatus(question)['color'],
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          question?.description ?? '',
+                          question.description,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 2,
                         ),
-                        RelativeTimeText(dateTime: question!.createdAt),
+                        RelativeTimeText(dateTime: question.createdAt),
                       ],
                     ),
                     trailing: SizedBox(

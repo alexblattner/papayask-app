@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_config/flutter_config.dart';
+import 'package:papayask_app/models/notification.dart';
 import 'package:papayask_app/questions/questions_service.dart';
 
 import '/models/user.dart' as user_model;
@@ -13,6 +14,22 @@ import '/models/user.dart' as user_model;
 class AuthService with ChangeNotifier {
   final questionsService = QuestionsService();
   final _auth = FirebaseAuth.instance; //firebase auth instance
+  var _notifications = <AppNotification>[];
+  var streamConnected = false;
+
+  void updateConnected(bool connected) {
+    streamConnected = connected;
+  }
+
+  List<AppNotification> get notifications {
+    _notifications.sort((a, b) {
+      return b.createdAt.compareTo(a.createdAt);
+    });
+    return _notifications;
+  }
+
+  int get notificationsCount =>
+      _notifications.where((element) => element.isRead == false).length;
 
   Stream<User?> get authStateChanges =>
       _auth.authStateChanges(); //stream of user to track auth state
@@ -56,6 +73,7 @@ class AuthService with ChangeNotifier {
       if (res.statusCode == 200) {
         authUser = user_model.User.fromJson(jsonDecode(res.body));
         authUser!.questions = questionsService.questions;
+        await getNotifications();
       } else {
         authUser = null;
       }
@@ -185,12 +203,63 @@ class AuthService with ChangeNotifier {
         notifyListeners();
         return 'done';
       } else {
-        print(convertedData['message']);
         return convertedData['message'];
       }
     } catch (e) {
       print(e);
       return 'Something went wrong';
+    }
+  }
+
+  Future<void> getNotifications() async {
+    final token = await _auth.currentUser?.getIdToken(true);
+    if (token is! String) {
+      return;
+    }
+    try {
+      final res = await http.get(
+          Uri.parse('${FlutterConfig.get('API_URL')}/notifications'),
+          headers: {
+            'Authorization': 'Bearer $token',
+          });
+      if (res.statusCode == 200) {
+        final convertedData = jsonDecode(res.body);
+        _notifications = convertedData
+            .map<AppNotification>((json) => AppNotification.fromJson(json))
+            .toList();
+        notifyListeners();
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> readNotifications(List<AppNotification> nots) async {
+    for (AppNotification not in nots) {
+      not.isRead = true;
+    }
+    notifyListeners();
+    final token = await _auth.currentUser?.getIdToken(true);
+    if (token is! String) {
+      return;
+    }
+    if (nots.isEmpty) {
+      return;
+    }
+    try {
+      await http.patch(
+          Uri.parse(
+              '${FlutterConfig.get('API_URL')}/notifications/read-notifications'),
+          body: jsonEncode({
+            'notifications': nots.map((e) => e.id).toList(),
+          }),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-type': 'application/json',
+            'Accept': 'application/json'
+          });
+    } catch (e) {
+      print(e);
     }
   }
 }

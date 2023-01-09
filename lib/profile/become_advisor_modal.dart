@@ -126,7 +126,47 @@ class BecomeAdvisorModal extends StatelessWidget {
           ],
         );
       case BecomeAdvisorModalType.inComplete:
-        return Column();
+        return Column(
+          children: [
+            Text(
+              'Thank you for your interest in becoming an advisor',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primaryColor,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 32),
+            const Text(
+              'In order to become an advisor your have to complete at least 75% of the process',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+              ),
+            ),
+            const SizedBox(height: 32),
+            RichText(
+              text: TextSpan(
+                text: 'Current progress: ',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primaryColor,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+                children: [
+                  TextSpan(
+                    text: '$progress%',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
     }
   }
 

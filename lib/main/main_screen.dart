@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:papayask_app/utils/time_passed.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_config/flutter_config.dart';
 
@@ -160,49 +159,51 @@ class MainScreenState extends State<MainScreen> {
     if (authProvider.authUser == null) return;
     final questionProvider =
         Provider.of<QuestionsService>(context, listen: false);
+    if (authProvider.streamConnected) return;
     final stream = Sse.connect(
             uri: Uri.parse(
                 "${FlutterConfig.get('API_URL')}/realtime-notifications/${authProvider.authUser!.id}"))
         .stream;
+    authProvider.updateConnected(true);
     stream.listen((event) async {
       if (event.toString() != 'connection opened') {
         final data = jsonDecode(event.toString());
-        final message = {
-          'body': '${data['sender']['name']} sent you a question',
-          'title': 'New Question',
-          'id': data['_id'],
-        };
-        AwesomeNotificationsService.showNotification(
-          title: message['title'],
-          body: message['body'],
-          payload: message['id'],
-        );
+        if (data['type'] == 'question') {
+          final message = {
+            'body': '${data['object']['sender']['name']} sent you a question',
+            'title': 'New Question',
+            'id': data['object']['_id'],
+          };
+          AwesomeNotificationsService.showNotification(
+            title: message['title'],
+            body: message['body'],
+            payload: message['id'],
+          );
+          await questionProvider.fetchQuestions();
+        } else if (data['type'] == 'notification') {
+          final message = {
+            'body': data['object']['body'],
+            'title': data['object']['title'],
+            'id': data['object']['_id'],
+          };
+          AwesomeNotificationsService.showNotification(
+            title: message['title'],
+            body: message['body'],
+            payload: message['id'],
+          );
+          await authService.getNotifications();
+        }
+      } else {
+        await questionProvider.fetchQuestions();
+        await authService.getNotifications();
       }
-      await questionProvider.fetchQuestions();
-      int newQuestionsCount = questionProvider.questions['received']!
-          .where((element) =>
-              element.status['action'] == 'pending' &&
-              !isTimePassed(element, authProvider.authUser!))
-          .toList()
-          .length;
-      questionProvider.updateNewQuestionsCount(newQuestionsCount);
     });
   }
 
   @override
   void initState() {
+    connectToEventSource();
     super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    final questionProvider =
-        Provider.of<QuestionsService>(context, listen: false);
-    if (questionProvider.questions.isEmpty) {
-      connectToEventSource();
-    }
-
-    super.didChangeDependencies();
   }
 
   @override

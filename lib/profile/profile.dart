@@ -48,20 +48,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-     final questionsProvider = Provider.of<QuestionsService>(context);
+    final questionsProvider = Provider.of<QuestionsService>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(profileUser?.name ?? ''),
         leading: Builder(builder: (context) {
-              return IconButton(
-                icon: badge_lib.Badge(
-                  showBadge: questionsProvider.newQuestionsCount > 0,
-                  child: const Icon(Icons.menu),
-                ),
-                color: Theme.of(context).colorScheme.primaryColor,
-                onPressed: Scaffold.of(context).openDrawer,
-              );
-            }),
+          return IconButton(
+            icon: badge_lib.Badge(
+              showBadge: questionsProvider.newQuestionsCount > 0,
+              child: const Icon(Icons.menu),
+            ),
+            color: Theme.of(context).colorScheme.primaryColor,
+            onPressed: Scaffold.of(context).openDrawer,
+          );
+        }),
         actions: [
           if (isOwnProfile)
             IconButton(
@@ -98,7 +98,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Stack(
                       children: [
                         ProfilePicture(
-                          src: profileUser!.picture!,
+                          src: profileUser?.picture ?? '',
                           size: 150,
                         ),
                         if (isOwnProfile)
