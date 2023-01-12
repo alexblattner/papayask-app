@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:papayask_app/questions/questions_service.dart';
 import 'package:provider/provider.dart';
 import 'package:badges/badges.dart' as badge_lib;
 
+import 'package:papayask_app/profile/profile_serivce.dart';
+import 'package:papayask_app/questions/questions_service.dart';
 import 'package:papayask_app/shared/app_drawer.dart';
 import 'package:papayask_app/profile/skill_badge.dart';
 import 'package:papayask_app/shared/company_logo.dart';
@@ -32,7 +33,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   void didChangeDependencies() {
-    final auth = Provider.of<AuthService>(context);
+    if (profileUser != null) {
+      return;
+    }
+    setProfileUser();
+
+    super.didChangeDependencies();
+  }
+
+  Future<void> setProfileUser() async {
+    final profileService = Provider.of<ProfileService>(context, listen: false);
+    final auth = Provider.of<AuthService>(context, listen: false);
     final args =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     final profileId = args['profileId'];
@@ -40,10 +51,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
       profileUser = auth.authUser;
       isOwnProfile = true;
     } else {
-      //TODO: fetch user from server
+      await profileService.getProfileUser(profileId);
+      setState(() {
+        profileUser = profileService.profileUser;
+      });
     }
+  }
 
-    super.didChangeDependencies();
+  bool get isUserFavorite {
+    if (profileUser == null) {
+      return false;
+    }
+    final authService = Provider.of<AuthService>(context, listen: false);
+    for (final favorite in authService.authUser!.favorites['users']) {
+      if (favorite.id == profileUser!.id) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @override
@@ -160,6 +185,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         fontSize: 24,
                       ),
                     ),
+                    if (!isOwnProfile)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color:
+                                    Theme.of(context).colorScheme.primaryColor,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: IconButton(
+                              onPressed: () {},
+                              icon: AppIcon(
+                                src: 'send',
+                                color:
+                                    Theme.of(context).colorScheme.primaryColor,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 16,
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color:
+                                    Theme.of(context).colorScheme.primaryColor,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: IconButton(
+                              onPressed: () {
+                                Provider.of<AuthService>(context, listen: false)
+                                    .favoriteUser(profileUser!);
+                              },
+                              icon: AppIcon(
+                                src: isUserFavorite ? 'heart_fill' : 'heart',
+                                color:
+                                    Theme.of(context).colorScheme.primaryColor,
+                                size: isUserFavorite ? 24 : 20,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     const SizedBox(height: 32),
                     _buildBio(context),
                     const SizedBox(

@@ -6,7 +6,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_config/flutter_config.dart';
+import 'package:papayask_app/models/favorites.dart';
 import 'package:papayask_app/models/notification.dart';
+import 'package:papayask_app/models/question.dart';
 import 'package:papayask_app/questions/questions_service.dart';
 
 import '/models/user.dart' as user_model;
@@ -252,6 +254,91 @@ class AuthService with ChangeNotifier {
               '${FlutterConfig.get('API_URL')}/notifications/read-notifications'),
           body: jsonEncode({
             'notifications': nots.map((e) => e.id).toList(),
+          }),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-type': 'application/json',
+            'Accept': 'application/json'
+          });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> favoriteUser(user_model.User user) async {
+    var favorited = false;
+    for (var i = 0; i < authUser!.favorites['users'].length; i++) {
+      if (authUser!.favorites['users'][i].id == user.id) {
+        authUser!.favorites['users'].removeAt(i);
+        favorited = true;
+        break;
+      }
+    }
+    if (!favorited) {
+      authUser!.favorites['users'].add(
+        FavoriteUser(
+          id: user.id,
+          name: user.name,
+          title: user.title,
+          picture: user.picture ?? '',
+        ),
+      );
+    }
+    notifyListeners();
+    final token = await _auth.currentUser?.getIdToken(true);
+    if (token is! String) {
+      return;
+    }
+    try {
+      final res = await http.post(
+          Uri.parse('${FlutterConfig.get('API_URL')}/user/favorite/${user.id}'),
+          body: jsonEncode({
+            'type': 'users',
+          }),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-type': 'application/json',
+            'Accept': 'application/json'
+          });
+      print(res.body);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> favoriteUQuestion(Question question) async {
+    var favorited = false;
+    for (var i = 0; i < authUser!.favorites['questions'].length; i++) {
+      if (authUser!.favorites['questions'][i].id == question.id) {
+        authUser!.favorites['questions'].removeAt(i);
+        favorited = true;
+        break;
+      }
+    }
+    if (!favorited) {
+      authUser!.favorites['questions'].add(
+        FavoriteQuestion(
+          id: question.id,
+          description: question.description,
+          senderPicture: question.sender.picture ?? '',
+          senderName: question.sender.name,
+          createdAt: question.createdAt,
+          status: question.status,
+          endAnswerTime: question.endAnswerTime,
+        ),
+      );
+    }
+    notifyListeners();
+    final token = await _auth.currentUser?.getIdToken(true);
+    if (token is! String) {
+      return;
+    }
+    try {
+      await http.post(
+          Uri.parse(
+              '${FlutterConfig.get('API_URL')}/user/favorite/${question.id}'),
+          body: jsonEncode({
+            'type': 'questions',
           }),
           headers: {
             'Authorization': 'Bearer $token',

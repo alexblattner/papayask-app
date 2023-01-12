@@ -3,6 +3,7 @@ import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart
 import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:provider/provider.dart';
 
+import 'package:papayask_app/profile/profile.dart';
 import 'package:papayask_app/models/user.dart';
 import 'package:papayask_app/questions/editor.dart';
 import 'package:papayask_app/shared/app_icon.dart';
@@ -260,37 +261,45 @@ class _QuestionScreenState extends State<QuestionScreen> {
                   const SizedBox(
                     height: 20,
                   ),
-                  Row(
-                    children: [
-                      ProfilePicture(
-                        src: question!.sender.picture ?? '',
-                        size: 50,
-                        isCircle: true,
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            question!.sender.name,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          if (question!.sender.title != '')
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pushNamed(
+                        ProfileScreen.routeName,
+                        arguments: {'profileId': question!.sender.id},
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        ProfilePicture(
+                          src: question!.sender.picture ?? '',
+                          size: 50,
+                          isCircle: true,
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Text(
-                              question!.sender.title,
+                              question!.sender.name,
                               style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                        ],
-                      ),
-                    ],
+                            if (question!.sender.title != '')
+                              Text(
+                                question!.sender.title,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(
                     height: 20,
@@ -340,71 +349,80 @@ class _QuestionScreenState extends State<QuestionScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Row(
-                              children: [
-                                ProfilePicture(
-                                  src: note.user.picture ?? '',
-                                  size: 50,
-                                  isCircle: true,
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      note.user.name,
-                                      style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    if (note.user.title != '')
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).pushNamed(
+                                  ProfileScreen.routeName,
+                                  arguments: {'profileId': note.user.id},
+                                );
+                              },
+                              child: Row(
+                                children: [
+                                  ProfilePicture(
+                                    src: note.user.picture ?? '',
+                                    size: 50,
+                                    isCircle: true,
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
                                       Text(
-                                        note.user.title,
+                                        note.user.name,
                                         style: const TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                  ],
-                                ),
-                                const Spacer(),
-                                if (note.user.id == authUser!.id &&
-                                    !question!.status['done'])
-                                  GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        editingNote = editingNote == note.id
-                                            ? ''
-                                            : note.id;
-                                      });
-                                    },
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(8.0),
-                                      child: AppIcon(
-                                        src: 'pencil_fill',
-                                        size: 28,
+                                      if (note.user.title != '')
+                                        Text(
+                                          note.user.title,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  const Spacer(),
+                                  if (note.user.id == authUser!.id &&
+                                      !question!.status['done'])
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          editingNote = editingNote == note.id
+                                              ? ''
+                                              : note.id;
+                                        });
+                                      },
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: AppIcon(
+                                          src: 'pencil_fill',
+                                          size: 28,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                if (note.user.id == authUser.id &&
-                                    !question!.status['done'])
-                                  GestureDetector(
-                                    onTap: () {
-                                      delete(note);
-                                    },
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(8.0),
-                                      child: AppIcon(
-                                        src: 'delete',
-                                        color: Colors.red,
-                                        size: 28,
+                                  if (note.user.id == authUser.id &&
+                                      !question!.status['done'])
+                                    GestureDetector(
+                                      onTap: () {
+                                        delete(note);
+                                      },
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: AppIcon(
+                                          src: 'delete',
+                                          color: Colors.red,
+                                          size: 28,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                              ],
+                                ],
+                              ),
                             ),
                             const SizedBox(
                               height: 20,

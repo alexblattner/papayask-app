@@ -1,5 +1,6 @@
 import 'package:papayask_app/models/education.dart';
 import 'package:papayask_app/models/experience.dart';
+import 'package:papayask_app/models/favorites.dart';
 import 'package:papayask_app/models/question.dart';
 import 'package:papayask_app/models/skill.dart';
 
@@ -25,6 +26,7 @@ class User {
   String? questionsInstructions;
   Map<String, List<Question>> questions;
   dynamic advisorStatus;
+  Map<String, dynamic> favorites;
   User({
     required this.id,
     required this.name,
@@ -47,36 +49,41 @@ class User {
     this.questionsInstructions,
     required this.questions,
     this.advisorStatus,
+    this.favorites = const {},
   });
 
   //define a factory constructor to create a User object from a json object
   factory User.fromJson(Map<String, dynamic> json) {
     User user = User(
-      id: json['_id'],
-      name: json['name'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-      confirmed: json['confirmed'],
-      title: json['title'] ?? '',
-      uid: json['uid'],
-      reputation: json['reputation'] ?? 0,
-      isSetUp: json['isSetUp'],
-      bio: json['bio'],
-      picture: json['picture'],
-      skills: json['skills'].map<Skill>((e) => Skill.fromJson(e)).toList(),
-      experience: getExperience(json['experience']),
-      education: getEducation(json['education']),
-      languages: json['languages'],
-      country: json['country'] ?? '',
-      verified: json['verified'],
-      requestSettings: json['request_settings'],
-      questionsInstructions: json['questionsInstructions'],
-      advisorStatus: json['advisorStatus'] ?? false,
-      questions: {
-        'sent': [],
-        'received': [],
-      },
-    );
+        id: json['_id'],
+        name: json['name'],
+        createdAt: DateTime.parse(json['createdAt']),
+        updatedAt: DateTime.parse(json['updatedAt']),
+        confirmed: json['confirmed'],
+        title: json['title'] ?? '',
+        uid: json['uid'],
+        reputation: json['reputation'] ?? 0,
+        isSetUp: json['isSetUp'],
+        bio: json['bio'],
+        picture: json['picture'],
+        skills: json['skills'].map<Skill>((e) => Skill.fromJson(e)).toList(),
+        experience: getExperience(json['experience']),
+        education: getEducation(json['education']),
+        languages: json['languages'],
+        country: json['country'] ?? '',
+        verified: json['verified'],
+        requestSettings: json['request_settings'],
+        questionsInstructions: json['questionsInstructions'],
+        advisorStatus: json['advisorStatus'] ?? false,
+        questions: {
+          'sent': [],
+          'received': [],
+        },
+        favorites: {
+          'users': getUsersFromJson(json['favorites']['users'] ?? []),
+          'questions':
+              getQuestionsFromJson(json['favorites']['questions'] ?? []),
+        });
     return user;
   }
 
@@ -125,4 +132,20 @@ List<Experience> getExperience(List experience) {
     experienceList.add(Experience.fromJson(experience[i]));
   }
   return experienceList;
+}
+
+List<FavoriteUser> getUsersFromJson(List users) {
+  List<FavoriteUser> userList = [];
+  for (var i = 0; i < users.length; i++) {
+    userList.add(FavoriteUser.fromJson(users[i]));
+  }
+  return userList;
+}
+
+List<FavoriteQuestion> getQuestionsFromJson(List questions) {
+  List<FavoriteQuestion> questionList = [];
+  for (var i = 0; i < questions.length; i++) {
+    questionList.add(FavoriteQuestion.fromJson(questions[i]));
+  }
+  return questionList;
 }

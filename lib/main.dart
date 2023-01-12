@@ -3,9 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_config/flutter_config.dart';
-import 'package:papayask_app/notifications/notifications_screen.dart';
 import 'package:provider/provider.dart';
 
+import 'package:papayask_app/favorites/favorites_screen.dart';
+import 'package:papayask_app/notifications/notifications_screen.dart';
+import 'package:papayask_app/profile/profile_serivce.dart';
 import 'package:papayask_app/questions/question_screen.dart';
 import 'package:papayask_app/utils/awesome_notifications_service.dart';
 import 'package:papayask_app/questions/questions_service.dart';
@@ -69,6 +71,9 @@ class _MyAppState extends State<MyApp> {
             create: (_) => AuthService(),
           ),
           ChangeNotifierProvider(
+            create: (_) => ProfileService(),
+          ),
+          ChangeNotifierProvider(
             create: (_) => QuestionsService(),
           ),
         ],
@@ -85,6 +90,7 @@ class _MyAppState extends State<MyApp> {
                 SetupScreen.routeName: (context) => const SetupScreen(),
                 QuestionsScreen.routeName: (context) => const QuestionsScreen(),
                 QuestionScreen.routeName: (context) => const QuestionScreen(),
+                FavoritesScreen.routeName: (context) => const FavoritesScreen(),
                 NotificationsScreen.routeName: (context) =>
                     const NotificationsScreen(),
                 ProfileUpdatePage.routeName: (context) =>
