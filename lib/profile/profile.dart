@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:papayask_app/questions/creator.dart';
 import 'package:provider/provider.dart';
 import 'package:badges/badges.dart' as badge_lib;
 
@@ -189,24 +190,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color:
-                                    Theme.of(context).colorScheme.primaryColor,
+                          if (profileUser!.advisorStatus == 'approved')
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primaryColor,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: IconButton(
-                              onPressed: () {},
-                              icon: AppIcon(
-                                src: 'send',
-                                color:
-                                    Theme.of(context).colorScheme.primaryColor,
-                                size: 20,
+                              child: IconButton(
+                                onPressed: () {
+                                  showGeneralDialog(
+                                    context: context,
+                                    pageBuilder: (_, __, ___) {
+                                      return Creator(user: profileUser!);
+                                    },
+                                  );
+                                },
+                                icon: AppIcon(
+                                  src: 'send',
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primaryColor,
+                                  size: 20,
+                                ),
                               ),
                             ),
-                          ),
                           const SizedBox(
                             width: 16,
                           ),

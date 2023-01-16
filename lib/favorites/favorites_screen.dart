@@ -1,8 +1,8 @@
 import 'package:badges/badges.dart' as badge_lib;
-import 'package:papayask_app/models/question.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
+import 'package:papayask_app/models/question.dart';
 import 'package:papayask_app/models/favorites.dart';
 import 'package:papayask_app/auth/auth_service.dart';
 import 'package:papayask_app/profile/profile.dart';

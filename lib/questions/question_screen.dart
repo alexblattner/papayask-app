@@ -320,6 +320,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                       ),
                     ),
                   if (question?.status['action'] == 'pending' &&
+                      question?.receiver.id == authUser!.id &&
                       !isTimePassed(question!))
                     Row(
                       children: [

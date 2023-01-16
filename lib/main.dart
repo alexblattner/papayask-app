@@ -21,6 +21,7 @@ import 'package:papayask_app/firebase_options.dart';
 import 'package:papayask_app/main/main_screen.dart';
 import 'package:papayask_app/profile/profile.dart';
 import 'package:papayask_app/splash_screen.dart';
+import 'package:papayask_app/shared/scaffold_key.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -80,6 +81,7 @@ class _MyAppState extends State<MyApp> {
         child: Consumer<AuthService>(
           builder: (context, auth, _) {
             return MaterialApp(
+              scaffoldMessengerKey: scaffoldKey,
               navigatorKey: MyApp.navigatorKey,
               home: const HomeController(),
               theme: appTheme(context),

@@ -62,6 +62,30 @@ class QuestionsService with ChangeNotifier {
     });
   }
 
+  Future<String> sendQuestion(String description, String receiver) async {
+    final token = await _auth.currentUser?.getIdToken(true);
+    if (token is! String) {
+      return 'not logged in';
+    }
+    try {
+      final res = await http.post(
+        Uri.parse('${FlutterConfig.get('API_URL')}/questions'),
+        body: {'receiver': receiver, 'description': description},
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+      if (res.statusCode == 200) {
+        fetchQuestions();
+        return 'Done';
+      }
+      return 'Error';
+    } catch (e) {
+      print(e);
+      return 'Error';
+    }
+  }
+
   Future<String> rejectQuestion(String questionId, String reason) async {
     final token = await _auth.currentUser?.getIdToken(true);
     if (token is! String) {

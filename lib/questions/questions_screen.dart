@@ -70,18 +70,21 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                 },
               ),
             ),
-            ListView.separated(
-              separatorBuilder: (context, index) => Container(
-                width: double.infinity,
-                height: 0.5,
-                color:
-                    Theme.of(context).colorScheme.primaryColor.withOpacity(0.5),
+            RefreshIndicator(
+              onRefresh: questionsProvider.fetchQuestions,
+              child: ListView.separated(
+                separatorBuilder: (context, index) => Container(
+                  width: double.infinity,
+                  height: 0.5,
+                  color:
+                      Theme.of(context).colorScheme.primaryColor.withOpacity(0.5),
+                ),
+                itemCount: questions['sent']?.length ?? 0,
+                itemBuilder: (context, index) {
+                  final question = questions['sent']?[index];
+                  return QuestionTile(question: question!, type: 'sent');
+                },
               ),
-              itemCount: questions['sent']?.length ?? 0,
-              itemBuilder: (context, index) {
-                final question = questions['sent']?[index];
-                return QuestionTile(question: question!, type: 'sent');
-              },
             ),
           ],
         ),

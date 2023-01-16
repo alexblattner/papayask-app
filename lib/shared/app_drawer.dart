@@ -160,9 +160,12 @@ class AppDrawer extends StatelessWidget {
                       size: 24,
                       color: Theme.of(context).colorScheme.primaryColor,
                     ),
-                    title: const Text(
+                    title: Text(
                       'Favorites',
-                      style: TextStyle(fontSize: 20),
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: textColor('/favorites', context),
+                      ),
                     ),
                   ),
                 ],
