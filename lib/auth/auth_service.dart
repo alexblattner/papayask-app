@@ -13,7 +13,6 @@ import 'package:papayask_app/models/question.dart';
 import 'package:papayask_app/questions/questions_service.dart';
 import '/models/user.dart' as user_model;
 
-
 class AuthService with ChangeNotifier {
   final questionsService = QuestionsService();
   final _auth = FirebaseAuth.instance; //firebase auth instance
@@ -348,6 +347,34 @@ class AuthService with ChangeNotifier {
           });
     } catch (e) {
       print(e);
+    }
+  }
+
+  Future<String> updateSettings(Map<String, dynamic> settings) async {
+    final token = await _auth.currentUser?.getIdToken(true);
+    if (token is! String) {
+      return 'Please login first';
+    }
+    try {
+      final res = await http.patch(
+          Uri.parse('${FlutterConfig.get('API_URL')}/user/${authUser!.id}'),
+          body: jsonEncode({
+            'request_settings': settings,
+          }),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-type': 'application/json',
+            'Accept': 'application/json'
+          });
+      if (res.statusCode == 200) {
+        authUser!.requestSettings = settings;
+        notifyListeners();
+        return 'done';
+      }
+      return 'error';
+    } catch (e) {
+      print(e);
+      return 'Error';
     }
   }
 }

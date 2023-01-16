@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:papayask_app/profile/question_settings.dart';
 import 'package:papayask_app/questions/creator.dart';
 import 'package:provider/provider.dart';
 import 'package:badges/badges.dart' as badge_lib;
@@ -186,6 +187,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         fontSize: 24,
                       ),
                     ),
+                    if (isOwnProfile)
+                      ElevatedButton(
+                        onPressed: () {
+                          showGeneralDialog(
+                              context: context,
+                              pageBuilder: (_, __, ___) {
+                                return const QuestionSettings();
+                              });
+                        },
+                        child: const Text('Settings'),
+                      ),
                     if (!isOwnProfile)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
