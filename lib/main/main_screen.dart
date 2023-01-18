@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_config/flutter_config.dart';
 
+import 'package:papayask_app/main/users_carousel.dart';
+import 'package:papayask_app/main/feed_service.dart';
+import 'package:papayask_app/models/user.dart';
 import 'package:papayask_app/utils/sse.dart';
 import 'package:papayask_app/utils/awesome_notifications_service.dart';
 import 'package:papayask_app/questions/questions_service.dart';
-import 'package:papayask_app/auth/screens/auth_screen.dart';
 import 'package:papayask_app/profile/become_advisor_modal.dart';
-import 'package:papayask_app/profile/setup/setup_screen.dart';
 import 'package:papayask_app/auth/auth_service.dart';
 import 'package:papayask_app/shared/app_drawer.dart';
 import 'package:papayask_app/shared/appbar.dart';
@@ -23,135 +24,29 @@ class MainScreen extends StatefulWidget {
 }
 
 class MainScreenState extends State<MainScreen> {
-  final authService = AuthService();
   var isLoading = false;
+  var showModal = false;
+  List<User> feedUsers = [];
 
   BecomeAdvisorModalType get _modalType {
-    if (authService.authUser!.advisorStatus == false &&
-        authService.authUser!.progress >= 75) {
+    final authProvider = Provider.of<AuthService>(context, listen: false);
+    if (authProvider.authUser!.advisorStatus == false &&
+        authProvider.authUser!.progress >= 75) {
       return BecomeAdvisorModalType.info;
-    } else if (authService.authUser!.advisorStatus == false &&
-        authService.authUser!.progress < 75) {
+    } else if (authProvider.authUser!.advisorStatus == false &&
+        authProvider.authUser!.progress < 75) {
       return BecomeAdvisorModalType.inComplete;
-    } else if (authService.authUser!.advisorStatus == 'pending') {
+    } else if (authProvider.authUser!.advisorStatus == 'pending') {
       return BecomeAdvisorModalType.pendingApproval;
     } else {
       return BecomeAdvisorModalType.info;
     }
   }
 
-  void becomeAdvisor() {
-    final authProvider = Provider.of<AuthService>(context, listen: false);
-    showDialog(
-      context: context,
-      builder: ((context) {
-        return LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              content: SizedBox(
-                height: constraints.maxHeight * 0.4,
-                width: constraints.maxWidth * 0.8,
-                child: BecomeAdvisorModal(
-                  progress: authProvider.authUser!.progress,
-                  type: _modalType,
-                ),
-              ),
-              actions: [
-                OutlinedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text(
-                    'Cancel',
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (authService.authUser!.advisorStatus == 'pending' ||
-                        (authService.authUser!.advisorStatus == false &&
-                            authService.authUser!.progress < 75)) {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pushNamed(
-                        SetupScreen.routeName,
-                        arguments: {
-                          'user': authProvider.authUser,
-                          'isAdvisorSetup':
-                              authService.authUser!.advisorStatus == 'pending'
-                                  ? false
-                                  : true,
-                        },
-                      );
-                    } else if (authService.authUser!.advisorStatus == false &&
-                        authService.authUser!.progress >= 75) {
-                      setState(() {
-                        isLoading = true;
-                      });
-                      final res = await authService.becomeAnAdvisor();
-                      if (!mounted) return;
-                      Navigator.pop(context);
-                      if (res == 'done') {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Application submitted successfully',
-                              textAlign: TextAlign.center,
-                            ),
-                            backgroundColor: Colors.green,
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Something went wrong',
-                              textAlign: TextAlign.center,
-                            ),
-                            backgroundColor: Colors.red,
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                      }
-                      setState(() {
-                        isLoading = false;
-                      });
-                    }
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        authService.authUser!.advisorStatus == 'pending' ||
-                                (authService.authUser!.advisorStatus == false &&
-                                    authService.authUser!.progress < 75)
-                            ? 'Edit profile'
-                            : 'Become an advisor',
-                      ),
-                      if (isLoading)
-                        const SizedBox(
-                          width: 10,
-                        ),
-                      if (isLoading)
-                        const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      }),
-    );
+  void onClose() {
+    setState(() {
+      showModal = false;
+    });
   }
 
   Future<void> connectToEventSource() async {
@@ -191,103 +86,86 @@ class MainScreenState extends State<MainScreen> {
             body: message['body'],
             payload: message['id'],
           );
-          await authService.getNotifications();
+          await authProvider.getNotifications();
         }
       } else {
         await questionProvider.fetchQuestions();
-        await authService.getNotifications();
+        await authProvider.getNotifications();
       }
+    });
+  }
+
+  Future<void> setFeedUsers() async {
+    final feedService = Provider.of<FeedService>(context, listen: false);
+    await feedService.fetchUsers();
+
+    setState(() {
+      feedUsers = feedService.users;
     });
   }
 
   @override
   void initState() {
     connectToEventSource();
+    setFeedUsers();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthService>(context);
-    final user = authProvider.authUser;
+    final user = authProvider.authUser!;
     return Scaffold(
       appBar: const CustomAppBar(),
       drawer: const AppDrawer(),
-      body: !authProvider.isVerified
-          ? Center(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                width: 280,
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'We have sent you an email  to verify your account. Please check your email and click on the link to verify your account.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        authService.reload();
-                        authService.logout();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 18,
-                          vertical: 9,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text(
-                        'Done',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+      body: showModal
+          ? BecomeAdvisorModal(
+              type: _modalType,
+              onClose: onClose,
+              progress: user.progress,
             )
-          : Center(
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (user?.advisorStatus != 'approved')
+                  if (user.advisorStatus != 'approved')
                     OutlinedButton(
                       onPressed: () {
-                        becomeAdvisor();
+                        setState(() {
+                          showModal = true;
+                        });
                       },
                       child: Text(
-                        user?.advisorStatus == 'pending'
+                        user.advisorStatus == 'pending'
                             ? 'Pending Approval'
                             : 'Become an Advisor',
                       ),
                     ),
-                  ElevatedButton(
-                    onPressed: () {
-                      authService.logout();
-                      Navigator.of(context)
-                          .pushReplacementNamed(AuthScreen.routeName);
-                    },
-                    child: const Text('logout'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Users',
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {},
+                        child: const Text('See all'),
+                      )
+                    ],
                   ),
+                  if (feedUsers.isNotEmpty)
+                    SizedBox(
+                      height: 350,
+                      child: UsersCarousel(
+                        users: feedUsers.sublist(
+                            0, feedUsers.length > 9 ? 9 : feedUsers.length),
+                      ),
+                    ),
                 ],
               ),
             ),

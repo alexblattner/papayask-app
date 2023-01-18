@@ -5,8 +5,8 @@ import 'package:flutter/cupertino.dart';
 // import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
-
 import 'package:flutter_config/flutter_config.dart';
+
 import 'package:papayask_app/models/favorites.dart';
 import 'package:papayask_app/models/notification.dart';
 import 'package:papayask_app/models/question.dart';
@@ -193,7 +193,8 @@ class AuthService with ChangeNotifier {
     }
     try {
       final res = await http.post(
-          Uri.parse('${FlutterConfig.get('API_URL')}/confirmation-application'),
+          Uri.parse(
+              '${FlutterConfig.get('API_URL')}/user/advisor-application/${authUser!.id}'),
           headers: {
             'Authorization': 'Bearer $token',
             'Content-type': 'application/json',
@@ -205,7 +206,8 @@ class AuthService with ChangeNotifier {
         notifyListeners();
         return 'done';
       } else {
-        return convertedData['message'];
+        print(convertedData['message']);
+        return 'Something went wrong';
       }
     } catch (e) {
       print(e);

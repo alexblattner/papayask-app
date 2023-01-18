@@ -4,13 +4,11 @@ class FavoriteUser {
   String title;
   String picture;
 
-
   FavoriteUser({
     required this.id,
     required this.name,
     required this.title,
     required this.picture,
-    
   });
 
   factory FavoriteUser.fromJson(Map<String, dynamic> json) {
@@ -19,7 +17,6 @@ class FavoriteUser {
       name: json['name'],
       title: json['title'] ?? '',
       picture: json['picture'] ?? '',
-      
     );
   }
 }
@@ -29,7 +26,7 @@ class FavoriteQuestion {
   String description;
   String senderPicture;
   String senderName;
-    DateTime createdAt;
+  DateTime createdAt;
   Map<String, dynamic> status;
   DateTime endAnswerTime;
 

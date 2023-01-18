@@ -56,7 +56,7 @@ class User {
   factory User.fromJson(Map<String, dynamic> json) {
     User user = User(
         id: json['_id'],
-        name: json['name'],
+        name: json['name'] ?? '',
         createdAt: DateTime.parse(json['createdAt']),
         updatedAt: DateTime.parse(json['updatedAt']),
         confirmed: json['confirmed'],
@@ -64,7 +64,7 @@ class User {
         uid: json['uid'],
         reputation: json['reputation'] ?? 0,
         isSetUp: json['isSetUp'],
-        bio: json['bio'],
+        bio: json['bio'] ?? '',
         picture: json['picture'],
         skills: json['skills'].map<Skill>((e) => Skill.fromJson(e)).toList(),
         experience: getExperience(json['experience']),

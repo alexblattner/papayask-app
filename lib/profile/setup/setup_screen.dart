@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:papayask_app/profile/setup/become_advisor_warning.dart';
 import 'package:provider/provider.dart';
 
 import 'package:papayask_app/profile/become_advisor_modal.dart';
@@ -51,6 +52,14 @@ class _SetupScreenState extends State<SetupScreen> {
   var userLanguages = [];
   var userEducation = <Education>[];
   var userExperience = <Experience>[];
+
+  var showModal = false;
+
+  void onClose() {
+    setState(() {
+      showModal = false;
+    });
+  }
 
   int get progress {
     int progress = 0;
@@ -190,47 +199,9 @@ class _SetupScreenState extends State<SetupScreen> {
     final authProvider = Provider.of<AuthService>(context, listen: false);
 
     if (type == 'submit' && progress < 75 && isAdvisorSetup) {
-      showDialog(
-        context: context,
-        builder: ((context) {
-          return LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-              return AlertDialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                content: SizedBox(
-                  height: constraints.maxHeight * 0.3,
-                  width: constraints.maxWidth * 0.8,
-                  child: BecomeAdvisorModal(
-                    progress: progress,
-                    type: BecomeAdvisorModalType.submitWarning,
-                  ),
-                ),
-                actions: [
-                  OutlinedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text(
-                      'Keep Editing',
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      submit('save');
-                    },
-                    child: const Text(
-                      'Save Progress',
-                    ),
-                  ),
-                ],
-              );
-            },
-          );
-        }),
-      );
+      setState(() {
+        showModal = true;
+      });
       return;
     }
 
@@ -270,13 +241,17 @@ class _SetupScreenState extends State<SetupScreen> {
       'skills': skills,
     };
 
+    //update user
     final res = await authProvider.updateUser(data);
     if (!mounted) return;
     if (res == 'done') {
+      // if update is successful
       if (type == 'submit') {
         if (isAdvisorSetup) {
+          //apply to become an advisor
           apply();
         } else {
+          //show success message and exit setup
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(
@@ -292,6 +267,7 @@ class _SetupScreenState extends State<SetupScreen> {
           });
         }
       } else {
+        //show success message and remain in setup
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
@@ -304,6 +280,7 @@ class _SetupScreenState extends State<SetupScreen> {
         );
       }
     } else {
+      // if update is not successful
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -373,29 +350,37 @@ class _SetupScreenState extends State<SetupScreen> {
         centerTitle: true,
         backgroundColor: Colors.white,
       ),
-      body: Column(
-        children: [
-          Pagination(
-            currentPage: currentPage,
-            pagesDone: pagesDone,
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: _buildScreen(),
+      body: showModal
+          ? BecomeAdvisorWarning(
+              progress: progress,
+              type: BecomeAdvisorModalType.submitWarning,
+              onClose: onClose,
+              submit: submit,
+              isSaving: isSaving,
+            )
+          : Column(
+              children: [
+                Pagination(
+                  currentPage: currentPage,
+                  pagesDone: pagesDone,
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: _buildScreen(),
+                  ),
+                ),
+                Footer(
+                  currentPage: currentPage,
+                  setCurrentPage: setCurrentPage,
+                  submit: submit,
+                  isLoading: isLoading,
+                  isSaving: isSaving,
+                  isAdvisorSetup: isAdvisorSetup,
+                  progress: progress,
+                ),
+              ],
             ),
-          ),
-          Footer(
-            currentPage: currentPage,
-            setCurrentPage: setCurrentPage,
-            submit: submit,
-            isLoading: isLoading,
-            isSaving: isSaving,
-            isAdvisorSetup: isAdvisorSetup,
-            progress: progress,
-          ),
-        ],
-      ),
     );
   }
 

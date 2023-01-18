@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:papayask_app/shared/app_icon.dart';
 import 'package:provider/provider.dart';
 
 import 'package:papayask_app/models/user.dart';
@@ -73,6 +74,9 @@ class _CreatorState extends State<Creator> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xff3b7bbf),
+              ),
               onPressed: isLoading || question.isEmpty
                   ? () {}
                   : () {
@@ -125,6 +129,12 @@ class _CreatorState extends State<Creator> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  const AppIcon(
+                    src: 'paypal',
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 16),
                   const Text('Pay with PayPal'),
                   if (isLoading) const SizedBox(width: 8),
                   if (isLoading)

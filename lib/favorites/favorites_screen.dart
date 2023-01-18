@@ -126,7 +126,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       src: user.picture,
                       size: 50,
                     ),
-                    isThreeLine: true,
                     title: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
