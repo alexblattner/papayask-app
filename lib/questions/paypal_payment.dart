@@ -20,9 +20,9 @@ class PaypalPayment extends StatefulWidget {
 
 class PaypalPaymentState extends State<PaypalPayment> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  var checkoutUrl;
-  var executeUrl;
-  var accessToken;
+  var checkoutUrl = '';
+  var executeUrl = '';
+  var accessToken = '';
   PaypalServices services = PaypalServices();
   WebViewController controller = WebViewController()
     ..setJavaScriptMode(JavaScriptMode.unrestricted);
@@ -82,7 +82,7 @@ class PaypalPaymentState extends State<PaypalPayment> {
 
   @override
   Widget build(BuildContext context) {
-    if (checkoutUrl != null) {
+    if (checkoutUrl != '') {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: Theme.of(context).backgroundColor,

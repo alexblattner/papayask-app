@@ -194,7 +194,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   Future<void> saveNote() async {
     Navigator.of(context).pop();
-    if (editingNote == '' && (content == '<p></br></p>' || content == '') ||
+    if (editingNote == '' && (content == '<p><br></p>' || content == '') ||
         (editingNote != '' &&
             (editingContent == '' || editingContent == '<p></br></p>'))) return;
 
@@ -206,13 +206,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
         question!.id,
         content,
         authUser!,
-      );
-    } else {
-      final note =
-          question!.notes.firstWhere((element) => element.id == editingNote);
-      questionsService.updateNote(
-        note,
-        editingContent,
       );
     }
   }
@@ -390,13 +383,35 @@ class _QuestionScreenState extends State<QuestionScreen> {
                                   ),
                                   const Spacer(),
                                   if (note.user.id == authUser!.id &&
+                                      !question!.status['done'] &&
+                                      editingNote != '')
+                                    IconButton(
+                                      onPressed: () {
+                                        final questionsService =
+                                            Provider.of<QuestionsService>(
+                                                context,
+                                                listen: false);
+                                        questionsService.updateNote(
+                                          note,
+                                          editingContent,
+                                        );
+                                        setState(() {
+                                          editingNote = '';
+                                          note.content = editingContent;
+                                        });
+                                      },
+                                      icon: const Icon(Icons.save_outlined),
+                                    ),
+                                  if (note.user.id == authUser.id &&
                                       !question!.status['done'])
                                     GestureDetector(
                                       onTap: () {
                                         setState(() {
-                                          editingNote = editingNote == note.id
-                                              ? ''
-                                              : note.id;
+                                          if (editingNote == note.id) {
+                                            editingNote = '';
+                                          } else {
+                                            editingNote = note.id;
+                                          }
                                         });
                                       },
                                       child: const Padding(
@@ -428,10 +443,11 @@ class _QuestionScreenState extends State<QuestionScreen> {
                             const SizedBox(
                               height: 20,
                             ),
-                            editingNote == note.id
+                            editingNote != '' && editingNote == note.id
                                 ? NoteEditor(
                                     setContent: setEditingContent,
                                     controller: editController,
+                                    initialText: note.content,
                                   )
                                 : HtmlWidget(note.content),
                             const Divider(),

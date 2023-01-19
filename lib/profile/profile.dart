@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:papayask_app/profile/question_settings.dart';
-import 'package:papayask_app/questions/creator.dart';
+import 'package:papayask_app/shared/app_drawer.dart';
 import 'package:provider/provider.dart';
 import 'package:badges/badges.dart' as badge_lib;
 
+import 'package:papayask_app/profile/question_settings.dart';
+import 'package:papayask_app/questions/creator.dart';
 import 'package:papayask_app/profile/profile_serivce.dart';
 import 'package:papayask_app/questions/questions_service.dart';
-import 'package:papayask_app/shared/app_drawer.dart';
 import 'package:papayask_app/profile/skill_badge.dart';
 import 'package:papayask_app/shared/company_logo.dart';
 import 'package:papayask_app/shared/university_logo.dart';

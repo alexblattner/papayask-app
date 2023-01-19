@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_config/flutter_config.dart';
 
+import 'package:papayask_app/main/user_card_placeholder.dart';
 import 'package:papayask_app/main/users_carousel.dart';
 import 'package:papayask_app/main/feed_service.dart';
-import 'package:papayask_app/models/user.dart';
 import 'package:papayask_app/utils/sse.dart';
 import 'package:papayask_app/utils/awesome_notifications_service.dart';
 import 'package:papayask_app/questions/questions_service.dart';
@@ -26,7 +26,6 @@ class MainScreen extends StatefulWidget {
 class MainScreenState extends State<MainScreen> {
   var isLoading = false;
   var showModal = false;
-  List<User> feedUsers = [];
 
   BecomeAdvisorModalType get _modalType {
     final authProvider = Provider.of<AuthService>(context, listen: false);
@@ -98,10 +97,6 @@ class MainScreenState extends State<MainScreen> {
   Future<void> setFeedUsers() async {
     final feedService = Provider.of<FeedService>(context, listen: false);
     await feedService.fetchUsers();
-
-    setState(() {
-      feedUsers = feedService.users;
-    });
   }
 
   @override
@@ -115,6 +110,7 @@ class MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthService>(context);
     final user = authProvider.authUser!;
+    final feedUsers = Provider.of<FeedService>(context).users;
     return Scaffold(
       appBar: const CustomAppBar(),
       drawer: const AppDrawer(),
@@ -158,6 +154,11 @@ class MainScreenState extends State<MainScreen> {
                       )
                     ],
                   ),
+                  if (feedUsers.isEmpty)
+                    const SizedBox(
+                      height: 350,
+                      child: UserCardPlaceHolder(),
+                    ),
                   if (feedUsers.isNotEmpty)
                     SizedBox(
                       height: 350,

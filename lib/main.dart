@@ -121,9 +121,17 @@ class HomeController extends StatelessWidget {
       stream: auth.authStateChanges,
       builder: (context, AsyncSnapshot<User?> snapshot) {
         if (snapshot.connectionState == ConnectionState.active &&
-            auth.authUser?.id != null) {
-          final bool signedIn = snapshot.hasData;
-          return signedIn ? const MainScreen() : const AuthScreen();
+            snapshot.data == null) {
+          return const AuthScreen();
+        }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SplashScreen();
+        }
+
+        if (snapshot.connectionState == ConnectionState.active &&
+            snapshot.hasData) {
+          final bool signedIn = auth.authUser?.id != null;
+          return signedIn ? const MainScreen() : const SplashScreen();
         }
         return const SplashScreen();
       },

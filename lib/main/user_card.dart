@@ -4,6 +4,7 @@ import 'package:papayask_app/models/skill.dart';
 import 'package:papayask_app/models/user.dart';
 import 'package:papayask_app/profile/profile.dart';
 import 'package:papayask_app/shared/profile_picture.dart';
+import 'package:papayask_app/utils/format_amount.dart';
 
 class UserCard extends StatelessWidget {
   final User user;
@@ -31,7 +32,6 @@ class UserCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double cardWidth = MediaQuery.of(context).size.width * 0.7;
-
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(
@@ -105,14 +105,15 @@ class UserCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: Colors.green,
+                    color: Colors.green.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    '\$${user.requestSettings!['cost']}',
+                    formatAmount(user.requestSettings!['cost'].toInt()),
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: Colors.green,
                       fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
                   ),
                 ),

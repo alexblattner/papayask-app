@@ -6,10 +6,12 @@ import 'package:papayask_app/theme/colors.dart';
 class NoteEditor extends StatelessWidget {
   final Function setContent;
   final HtmlEditorController controller;
+  final String initialText;
   const NoteEditor({
     super.key,
     required this.setContent,
     required this.controller,
+    this.initialText = '',
   });
 
   @override
@@ -23,9 +25,10 @@ class NoteEditor extends StatelessWidget {
           }
         },
       ),
-      htmlEditorOptions: const HtmlEditorOptions(
+      htmlEditorOptions: HtmlEditorOptions(
         hint: 'Type your note here',
         shouldEnsureVisible: true,
+        initialText: initialText,
       ),
       htmlToolbarOptions: HtmlToolbarOptions(
         buttonSelectedColor: Theme.of(context).colorScheme.primaryColor,

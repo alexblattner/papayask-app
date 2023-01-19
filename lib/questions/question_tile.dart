@@ -65,6 +65,10 @@ class _QuestionTileState extends State<QuestionTile> {
           arguments: widget.question,
         );
       },
+      tileColor: widget.question.status['action'] == 'pending' &&
+              !isTimePassed(widget.question)
+          ? Theme.of(context).colorScheme.primaryColor.withOpacity(0.1)
+          : Colors.white,
       leading: ProfilePicture(
         src: user.picture ?? '',
         size: 50,
