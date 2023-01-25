@@ -3,9 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_config/flutter_config.dart';
+import 'package:papayask_app/main/all_advisor_screen.dart';
 import 'package:provider/provider.dart';
 
-import 'package:papayask_app/main/feed_service.dart';
+import 'package:papayask_app/main/advisor_service.dart';
 import 'package:papayask_app/favorites/favorites_screen.dart';
 import 'package:papayask_app/notifications/notifications_screen.dart';
 import 'package:papayask_app/profile/profile_serivce.dart';
@@ -76,7 +77,7 @@ class _MyAppState extends State<MyApp> {
             create: (_) => ProfileService(),
           ),
           ChangeNotifierProvider(
-            create: (_) => FeedService(),
+            create: (_) => AdvisorService(),
           ),
           ChangeNotifierProvider(
             create: (_) => QuestionsService(),
@@ -94,6 +95,8 @@ class _MyAppState extends State<MyApp> {
                 MainScreen.routeName: (context) => const MainScreen(),
                 ProfileScreen.routeName: (context) => const ProfileScreen(),
                 SetupScreen.routeName: (context) => const SetupScreen(),
+                AllAdvisorScreen.routeName: (context) =>
+                    const AllAdvisorScreen(),
                 QuestionsScreen.routeName: (context) => const QuestionsScreen(),
                 QuestionScreen.routeName: (context) => const QuestionScreen(),
                 FavoritesScreen.routeName: (context) => const FavoritesScreen(),

@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_config/flutter_config.dart';
 
+import 'package:papayask_app/main/all_advisor_screen.dart';
 import 'package:papayask_app/main/user_card_placeholder.dart';
 import 'package:papayask_app/main/users_carousel.dart';
-import 'package:papayask_app/main/feed_service.dart';
+import 'package:papayask_app/main/advisor_service.dart';
 import 'package:papayask_app/utils/sse.dart';
 import 'package:papayask_app/utils/awesome_notifications_service.dart';
 import 'package:papayask_app/questions/questions_service.dart';
@@ -95,7 +96,7 @@ class MainScreenState extends State<MainScreen> {
   }
 
   Future<void> setFeedUsers() async {
-    final feedService = Provider.of<FeedService>(context, listen: false);
+    final feedService = Provider.of<AdvisorService>(context, listen: false);
     await feedService.fetchUsers();
   }
 
@@ -110,7 +111,7 @@ class MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthService>(context);
     final user = authProvider.authUser!;
-    final feedUsers = Provider.of<FeedService>(context).users;
+    final feedUsers = Provider.of<AdvisorService>(context).users;
     return Scaffold(
       appBar: const CustomAppBar(),
       drawer: const AppDrawer(),
@@ -142,29 +143,35 @@ class MainScreenState extends State<MainScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'Users',
+                        'Advisors',
                         style: TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(context).pushNamed(
+                            AllAdvisorScreen.routeName,
+                          );
+                        },
                         child: const Text('See all'),
                       )
                     ],
                   ),
                   if (feedUsers.isEmpty)
                     const SizedBox(
-                      height: 350,
+                      height: 300,
                       child: UserCardPlaceHolder(),
                     ),
                   if (feedUsers.isNotEmpty)
                     SizedBox(
-                      height: 350,
+                      height: 300,
                       child: UsersCarousel(
                         users: feedUsers.sublist(
-                            0, feedUsers.length > 9 ? 9 : feedUsers.length),
+                          0,
+                          feedUsers.length > 9 ? 9 : feedUsers.length,
+                        ),
                       ),
                     ),
                 ],

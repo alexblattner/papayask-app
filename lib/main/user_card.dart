@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:papayask_app/models/skill.dart';
 import 'package:papayask_app/models/user.dart';
 import 'package:papayask_app/profile/profile.dart';
 import 'package:papayask_app/shared/profile_picture.dart';
@@ -8,30 +7,21 @@ import 'package:papayask_app/utils/format_amount.dart';
 
 class UserCard extends StatelessWidget {
   final User user;
-  UserCard({super.key, required this.user});
+  const UserCard({super.key, required this.user});
 
-  double topSkillYears = 0;
-  Skill? get topSkill {
-    if (user.skills.isEmpty) {
-      return null;
+  double get totalYears {
+    double totalYears = 0;
+    for (var exp in user.experience) {
+      DateTime start = exp.startDate;
+      DateTime end = exp.endDate ?? DateTime.now();
+      totalYears += end.difference(start).inDays / 365;
     }
-    Skill topSkill = user.skills[0];
-    double maxYears = 0;
-    for (var skill in user.skills) {
-      double totalYears =
-          skill.experiences.map((e) => e['years']).fold(0, (a, b) => a + b);
-      if (totalYears > maxYears) {
-        maxYears = totalYears;
-        topSkill = skill;
-      }
-    }
-    topSkillYears = maxYears;
-    return topSkill;
+    return totalYears;
   }
 
   @override
   Widget build(BuildContext context) {
-    double cardWidth = MediaQuery.of(context).size.width * 0.7;
+    double cardWidth = MediaQuery.of(context).size.width * 0.5;
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(
@@ -40,9 +30,8 @@ class UserCard extends StatelessWidget {
           arguments: {'profileId': user.id},
         );
       },
-      child: Container(
+      child: SizedBox(
         width: cardWidth,
-        margin: const EdgeInsets.only(right: 15),
         child: Card(
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(
@@ -53,45 +42,38 @@ class UserCard extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ProfilePicture(
                   src: user.picture ?? '',
                   isCircle: true,
                   size: 100,
                 ),
-                const SizedBox(height: 25),
-                Text(
-                  user.name,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  user.title,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                if (topSkill != null)
-                  Text(
-                    topSkill?.name ?? 'No skills',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
+                Column(
+                  children: [
+                    Text(
+                      user.name,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                const SizedBox(width: 5),
-                Text(
-                  '$topSkillYears years of experience',
+                    Text(
+                      user.title,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
+                  ],
                 ),
-                if (topSkill == null)
-                  Container(
-                    height: 53,
-                  ),
-                const SizedBox(height: 16),
+                Text(
+                  '${totalYears.toStringAsFixed(1)} years of experience',
+                ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -100,7 +82,6 @@ class UserCard extends StatelessWidget {
                     Text(user.skills.length.toString()),
                   ],
                 ),
-                const SizedBox(height: 25),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),

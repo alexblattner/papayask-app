@@ -117,5 +117,32 @@ ThemeData appTheme(BuildContext context) {
         ),
       ),
     ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: Colors.white,
+      foregroundColor: Theme.of(context).colorScheme.primaryColor,
+      elevation: 2,
+      extendedTextStyle: TextStyle(
+        color: Theme.of(context).colorScheme.primaryColor,
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    sliderTheme: SliderThemeData(
+      activeTrackColor: Theme.of(context).colorScheme.primaryColor,
+      inactiveTrackColor: Theme.of(context).colorScheme.secondaryColor,
+      thumbColor: Theme.of(context).colorScheme.primaryColor,
+      overlayColor: Theme.of(context).colorScheme.primaryColor.withOpacity(0.2),
+      valueIndicatorColor: Theme.of(context).colorScheme.primaryColor,
+      valueIndicatorTextStyle: const TextStyle(
+        color: Colors.white,
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    checkboxTheme: CheckboxThemeData(
+      fillColor: MaterialStateProperty.all(
+        Theme.of(context).colorScheme.primaryColor,
+      ),
+    ),
   );
 }

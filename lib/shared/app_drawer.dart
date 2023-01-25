@@ -1,10 +1,9 @@
 import 'package:badges/badges.dart' as badge_lib;
 import 'package:flutter/material.dart';
-import 'package:papayask_app/auth/screens/auth_screen.dart';
 import 'package:provider/provider.dart';
 
+import 'package:papayask_app/auth/screens/auth_screen.dart';
 import 'package:papayask_app/favorites/favorites_screen.dart';
-import 'package:papayask_app/profile/profile_serivce.dart';
 import 'package:papayask_app/notifications/notifications_screen.dart';
 import 'package:papayask_app/main/main_screen.dart';
 import 'package:papayask_app/questions/questions_screen.dart';
@@ -19,11 +18,7 @@ class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
 
   Color textColor(String route, BuildContext context) {
-    final profileProvider = Provider.of<ProfileService>(context, listen: false);
     final currentRoute = ModalRoute.of(context)?.settings.name;
-    if (currentRoute == '/profile' && profileProvider.profileUser != null) {
-      return Colors.black;
-    }
     if (currentRoute == route || (currentRoute == '/home' && route == '/')) {
       return Theme.of(context).colorScheme.primaryColor;
     }
@@ -176,8 +171,9 @@ class AppDrawer extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 auth.logout();
-                Navigator.of(context)
-                    .pushReplacementNamed(AuthScreen.routeName);
+                Navigator.of(context).pushReplacementNamed(
+                  AuthScreen.routeName,
+                );
               },
               child: const Text('logout'),
             ),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:papayask_app/shared/app_drawer.dart';
 import 'package:provider/provider.dart';
 import 'package:badges/badges.dart' as badge_lib;
 
+import 'package:papayask_app/shared/app_drawer.dart';
 import 'package:papayask_app/profile/question_settings.dart';
 import 'package:papayask_app/questions/creator.dart';
 import 'package:papayask_app/profile/profile_serivce.dart';
@@ -77,36 +77,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final questionsProvider = Provider.of<QuestionsService>(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(profileUser?.name ?? ''),
-        leading: Builder(builder: (context) {
-          return IconButton(
-            icon: badge_lib.Badge(
-              showBadge: questionsProvider.newQuestionsCount > 0,
-              child: const Icon(Icons.menu),
-            ),
-            color: Theme.of(context).colorScheme.primaryColor,
-            onPressed: Scaffold.of(context).openDrawer,
-          );
-        }),
-        actions: [
-          if (isOwnProfile)
-            IconButton(
-              onPressed: () {
-                Navigator.of(context).pushNamed(
-                  SetupScreen.routeName,
-                  arguments: {'user': profileUser, 'isAdvisorSetup': false},
+      appBar: isOwnProfile
+          ? AppBar(
+              title: Text(profileUser?.name ?? ''),
+              leading: Builder(builder: (context) {
+                return IconButton(
+                  icon: badge_lib.Badge(
+                    showBadge: questionsProvider.newQuestionsCount > 0,
+                    child: const Icon(Icons.menu),
+                  ),
+                  color: Theme.of(context).colorScheme.primaryColor,
+                  onPressed: Scaffold.of(context).openDrawer,
                 );
-              },
-              icon: AppIcon(
-                src: 'pencil_fill',
-                size: 18,
-                color: Theme.of(context).colorScheme.primaryColor,
-              ),
+              }),
+              actions: [
+                if (isOwnProfile)
+                  IconButton(
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(
+                        SetupScreen.routeName,
+                        arguments: {
+                          'user': profileUser,
+                          'isAdvisorSetup': false
+                        },
+                      );
+                    },
+                    icon: AppIcon(
+                      src: 'pencil_fill',
+                      size: 18,
+                      color: Theme.of(context).colorScheme.primaryColor,
+                    ),
+                  ),
+              ],
+            )
+          : AppBar(
+              title: Text(profileUser?.name ?? ''),
             ),
-        ],
-      ),
-      drawer: const AppDrawer(),
+      drawer: isOwnProfile ? const AppDrawer() : null,
       body: profileUser == null
           ? Center(
               child: CircularProgressIndicator(
