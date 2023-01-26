@@ -60,10 +60,8 @@ class _FiltersScreenState extends State<FiltersScreen> {
             AppliedFilters(),
             BudgetFilter(),
             FiltersDivider(),
-            ExperienceFilter(),
-            
+            ExperienceFilter(),    
             LocationFilter(),
-        
             EducationFilter(),
             SizedBox(height: 60),
           ],
