@@ -98,15 +98,30 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class HomeController extends StatelessWidget {
+class HomeController extends StatefulWidget {
   const HomeController({super.key});
+
+  @override
+  State<HomeController> createState() => _HomeControllerState();
+}
+
+class _HomeControllerState extends State<HomeController> {
+  late Stream<User?> stream;
+
+  @override
+  void initState() {
+    final auth = Provider.of<AuthService>(context, listen: false);
+
+    stream = auth.authStateChanges;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthService>(context);
 
     return StreamBuilder(
-      stream: auth.authStateChanges,
+      stream: stream,
       builder: (context, AsyncSnapshot<User?> snapshot) {
         if (snapshot.connectionState == ConnectionState.active &&
             snapshot.data == null) {
