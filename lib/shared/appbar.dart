@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badge_lib;
+
 import 'package:papayask_app/auth/auth_service.dart';
 import 'package:papayask_app/questions/questions_service.dart';
-
 import 'package:papayask_app/shared/full_logo.dart';
 import 'package:papayask_app/theme/colors.dart';
 import 'package:provider/provider.dart';
@@ -23,16 +23,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: title != null ? Text(title!) : const FullLogo(),
       centerTitle: true,
       leading: extended
-          ? GestureDetector(
-              onTap: Scaffold.of(context).openDrawer,
-              child: badge_lib.Badge(
-                showBadge: questionsProvider.newQuestionsCount > 0 ||
-                    authProvider.notificationsCount > 0,
-                position: badge_lib.BadgePosition.topEnd(top: 10, end: 6),
-                child: Icon(
-                  Icons.menu,
-                  color: Theme.of(context).colorScheme.primaryColor,
-                ),
+          ? badge_lib.Badge(
+              showBadge: questionsProvider.newQuestionsCount > 0 ||
+                  authProvider.notificationsCount > 0,
+              position: badge_lib.BadgePosition.topEnd(top: 10, end: 6),
+              child: IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: Scaffold.of(context).openDrawer,
+                color: Theme.of(context).colorScheme.primaryColor,
               ),
             )
           : null,

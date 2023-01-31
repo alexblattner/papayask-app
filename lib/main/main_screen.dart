@@ -1,20 +1,26 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:papayask_app/questions/question_screen.dart';
+import 'package:papayask_app/utils/local_notifications_service.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_config/flutter_config.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:papayask_app/main/all_advisor_screen.dart';
 import 'package:papayask_app/main/user_card_placeholder.dart';
 import 'package:papayask_app/main/users_carousel.dart';
 import 'package:papayask_app/main/advisor_service.dart';
 import 'package:papayask_app/utils/sse.dart';
-import 'package:papayask_app/utils/awesome_notifications_service.dart';
 import 'package:papayask_app/questions/questions_service.dart';
 import 'package:papayask_app/profile/become_advisor_modal.dart';
 import 'package:papayask_app/auth/auth_service.dart';
 import 'package:papayask_app/shared/app_drawer.dart';
 import 'package:papayask_app/shared/appbar.dart';
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  LocalNotificationsService.display(message);
+}
 
 class MainScreen extends StatefulWidget {
   static const routeName = '/home';
@@ -25,6 +31,8 @@ class MainScreen extends StatefulWidget {
 }
 
 class MainScreenState extends State<MainScreen> {
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
   var isLoading = false;
   var showModal = false;
 
@@ -49,6 +57,18 @@ class MainScreenState extends State<MainScreen> {
     });
   }
 
+  Future<void> requestNotificationsPermision() async {
+    await messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+  }
+
   Future<void> connectToEventSource() async {
     final authProvider = Provider.of<AuthService>(context, listen: false);
     if (authProvider.authUser == null) return;
@@ -64,28 +84,8 @@ class MainScreenState extends State<MainScreen> {
       if (event.toString() != 'connection opened') {
         final data = jsonDecode(event.toString());
         if (data['type'] == 'question') {
-          final message = {
-            'body': '${data['object']['sender']['name']} sent you a question',
-            'title': 'New Question',
-            'id': data['object']['_id'],
-          };
-          AwesomeNotificationsService.showNotification(
-            title: message['title'],
-            body: message['body'],
-            payload: message['id'],
-          );
           await questionProvider.fetchQuestions();
         } else if (data['type'] == 'notification') {
-          final message = {
-            'body': data['object']['body'],
-            'title': data['object']['title'],
-            'id': data['object']['_id'],
-          };
-          AwesomeNotificationsService.showNotification(
-            title: message['title'],
-            body: message['body'],
-            payload: message['id'],
-          );
           await authProvider.getNotifications();
         }
       } else {
@@ -104,6 +104,19 @@ class MainScreenState extends State<MainScreen> {
   void initState() {
     connectToEventSource();
     setFeedUsers();
+    requestNotificationsPermision();
+    LocalNotificationsService.initialize();
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      LocalNotificationsService.display(message);
+    });
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      Navigator.pushNamed(
+        context,
+        QuestionScreen.routeName,
+        arguments: {'questionId' : message.data['question']},
+      );
+    });
     super.initState();
   }
 

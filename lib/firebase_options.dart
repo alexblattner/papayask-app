@@ -64,6 +64,6 @@ class DefaultFirebaseOptions {
     projectId: 'papayas-a4fb2',
     storageBucket: 'papayas-a4fb2.appspot.com',
     iosClientId: '845413008078-nj7sdecsnvdidj1hkgq1gva5nkp26lbu.apps.googleusercontent.com',
-    iosBundleId: 'com.example.papayaskApp',
+    iosBundleId: 'com.example.papayask-app',
   );
 }

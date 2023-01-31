@@ -61,7 +61,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   }
                   Navigator.of(context).pushNamed(
                     QuestionScreen.routeName,
-                    arguments: notification.question,
+                    arguments: {'question' : notification.question},
                   );
                 }
               },

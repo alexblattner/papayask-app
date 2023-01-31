@@ -51,6 +51,28 @@ class QuestionsService with ChangeNotifier {
     }
   }
 
+  Future<Question?> getQuestion(String id) async {
+    final token = await _auth.currentUser?.getIdToken(true);
+    if (token is! String) {
+      throw Exception('No token');
+    }
+    try {
+      final res = await http.get(
+        Uri.parse('${FlutterConfig.get('API_URL')}/questions/$id'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+      final data = jsonDecode(res.body);
+      if (res.statusCode == 200) {
+        return Question.fromJson(data);
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+    return null;
+  }
+
   Map<String, List<Question>> get questions => _questions;
 
   void sortQuestions() {

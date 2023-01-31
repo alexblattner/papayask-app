@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:640980254537:android:13e591ee71a56e80b76498",
+        "mobilesdk_app_id": "1:640980254537:android:9876aa692216c5d9b76498",
         "android_client_info": {
-          "package_name": "com.example.papyask_app"
+          "package_name": "com.example.papayask_app"
         }
       },
       "oauth_client": [
@@ -29,6 +29,13 @@
             {
               "client_id": "640980254537-rq6gh2ti0cjt6a6djqas6hg50e89gu1k.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "640980254537-5g16ehrsr331ijhhgckd0296nuu62cmk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.papayaApp"
+              }
             }
           ]
         }

@@ -62,7 +62,7 @@ class _QuestionTileState extends State<QuestionTile> {
       onTap: () {
         Navigator.of(context).pushNamed(
           QuestionScreen.routeName,
-          arguments: widget.question,
+          arguments: {'question': widget.question},
         );
       },
       tileColor: widget.question.status['action'] == 'pending' &&

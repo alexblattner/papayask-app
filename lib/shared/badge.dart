@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'package:papayask_app/theme/colors.dart';
 
-class Badge extends StatelessWidget {
+class AppBadge extends StatelessWidget {
   final String text;
   final bool isRemovable;
   final Function? onRemove;
-  const Badge({
+  const AppBadge({
     super.key,
     required this.text,
     this.isRemovable = false,

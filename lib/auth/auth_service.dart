@@ -63,6 +63,7 @@ class AuthService with ChangeNotifier {
     if (token is! String) {
       return;
     }
+    // await registerToken();
     try {
       final res = await http
           .post(Uri.parse('${FlutterConfig.get('API_URL')}/user'), body: {
@@ -155,6 +156,34 @@ class AuthService with ChangeNotifier {
   void reload() {
     _auth.currentUser!.reload();
   }
+
+
+
+  //register device token for push notifications
+  // Future<void> registerToken() async {
+  //   final token = await _auth.currentUser?.getIdToken(true);
+  //   if (token is! String) {
+  //     return;
+  //   }
+  //   final fcmToken = await getFirebaseMessagingToken();
+  //   try {
+  //     final res = await http.post(
+  //         Uri.parse('${FlutterConfig.get('API_URL')}/user/tokens/register'),
+  //         body: {
+  //           'token': fcmToken
+  //         },
+  //         headers: {
+  //           'Authorization': 'Bearer $token',
+  //         });
+  //     if (res.statusCode == 200) {
+  //       notifyListeners();
+  //     } else {
+  //       print('error');
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 
   Future<String> updateUser(Map<String, dynamic> data) async {
     final token = await _auth.currentUser?.getIdToken(true);

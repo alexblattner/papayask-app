@@ -1,17 +1,15 @@
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_config/flutter_config.dart';
-import 'package:papayask_app/main/all_advisor_screen.dart';
 import 'package:provider/provider.dart';
 
+import 'package:papayask_app/main/all_advisor_screen.dart';
 import 'package:papayask_app/main/advisor_service.dart';
 import 'package:papayask_app/favorites/favorites_screen.dart';
 import 'package:papayask_app/notifications/notifications_screen.dart';
 import 'package:papayask_app/profile/profile_serivce.dart';
 import 'package:papayask_app/questions/question_screen.dart';
-import 'package:papayask_app/utils/awesome_notifications_service.dart';
 import 'package:papayask_app/questions/questions_service.dart';
 import 'package:papayask_app/theme/app_theme.dart';
 import 'package:papayask_app/questions/questions_screen.dart';
@@ -31,8 +29,9 @@ Future<void> main() async {
     name: 'Papayask',
     options: DefaultFirebaseOptions.currentPlatform,
   );
+ 
   await FlutterConfig.loadEnvVariables();
-  AwesomeNotificationsService.initialize();
+
   runApp(const MyApp());
 }
 
@@ -47,20 +46,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final ThemeData theme = ThemeData();
-
-  @override
-  void initState() {
-    AwesomeNotifications().setListeners(
-        onActionReceivedMethod: NotificationController.onActionReceivedMethod,
-        onNotificationCreatedMethod:
-            NotificationController.onNotificationCreatedMethod,
-        onNotificationDisplayedMethod:
-            NotificationController.onNotificationDisplayedMethod,
-        onDismissActionReceivedMethod:
-            NotificationController.onDismissActionReceivedMethod);
-
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,34 +124,5 @@ class HomeController extends StatelessWidget {
         return const SplashScreen();
       },
     );
-  }
-}
-
-class NotificationController {
-  /// Use this method to detect when a new notification or a schedule is created
-  @pragma("vm:entry-point")
-  static Future<void> onNotificationCreatedMethod(
-      ReceivedNotification receivedNotification) async {}
-
-  /// Use this method to detect every time that a new notification is displayed
-  @pragma("vm:entry-point")
-  static Future<void> onNotificationDisplayedMethod(
-      ReceivedNotification receivedNotification) async {}
-
-  /// Use this method to detect if the user dismissed a notification
-  @pragma("vm:entry-point")
-  static Future<void> onDismissActionReceivedMethod(
-      ReceivedAction receivedAction) async {}
-
-  /// Use this method to detect when the user taps on a notification or action button
-  @pragma("vm:entry-point")
-  static Future<void> onActionReceivedMethod(
-      ReceivedAction receivedAction) async {
-    // Navigate into pages, avoiding to open the notification details page over another details page already opened
-    MyApp.navigatorKey.currentState?.pushNamedAndRemoveUntil(
-        QuestionsScreen.routeName,
-        (route) =>
-            (route.settings.name != QuestionsScreen.routeName) || route.isFirst,
-        arguments: receivedAction);
   }
 }

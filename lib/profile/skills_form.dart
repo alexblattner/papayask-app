@@ -150,7 +150,7 @@ class _SkillsFormState extends State<SkillsForm>
                 alignment: WrapAlignment.start,
                 children: [
                   for (final edu in relatedEducation)
-                    Badge(
+                    AppBadge(
                       text: edu.university.name,
                       isRemovable: true,
                       onRemove: removeRelatedCompany,
@@ -201,7 +201,7 @@ class _SkillsFormState extends State<SkillsForm>
                 alignment: WrapAlignment.start,
                 children: [
                   for (final exp in relatedExperience)
-                    Badge(
+                    AppBadge(
                       text: exp.company.name,
                       isRemovable: true,
                       onRemove: removeRelatedUniversity,

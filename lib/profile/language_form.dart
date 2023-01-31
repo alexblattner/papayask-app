@@ -34,7 +34,7 @@ class _LanguageFormState extends State<LanguageForm> {
           alignment: WrapAlignment.start,
           children: [
             for (final language in widget.languages)
-              Badge(
+              AppBadge(
                 text: language,
                 isRemovable: true,
                 onRemove: removeLanguage,

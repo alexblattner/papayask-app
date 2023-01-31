@@ -441,7 +441,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             runSpacing: 8,
             children: [
               for (final language in profileUser!.languages)
-                Badge(text: language)
+                AppBadge(text: language)
             ],
           ),
         ],

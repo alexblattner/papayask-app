@@ -374,34 +374,33 @@ class AdvisorService with ChangeNotifier {
   }
 
   //set the sort value
-
   void setSortByValue(SortBy value) {
     sortBy = value;
-    sortUsers();
+    sortUsers(_filteredUsers);
+    sortUsers(_users);
     notifyListeners();
   }
 
   //sorts the users list by the given sortBy parameter
-  void sortUsers() {
+  void sortUsers(List<user_model.User> usersToSort) {
     switch (sortBy) {
       case SortBy.costUp:
-        _filteredUsers.sort((a, b) =>
+        usersToSort.sort((a, b) =>
             a.requestSettings!['cost'].compareTo(b.requestSettings!['cost']));
         break;
       case SortBy.costDown:
-        _filteredUsers.sort((a, b) =>
+        usersToSort.sort((a, b) =>
             b.requestSettings!['cost'].compareTo(a.requestSettings!['cost']));
         break;
       case SortBy.experience:
-        _filteredUsers.sort((a, b) {
+        usersToSort.sort((a, b) {
           final aExp = countYearsOfExperience(a);
           final bExp = countYearsOfExperience(b);
           return bExp.compareTo(aExp);
         });
         break;
       case SortBy.skills:
-        _filteredUsers
-            .sort((a, b) => b.skills.length.compareTo(a.skills.length));
+        usersToSort.sort((a, b) => b.skills.length.compareTo(a.skills.length));
         break;
       default:
         break;

@@ -40,13 +40,34 @@ class _QuestionScreenState extends State<QuestionScreen> {
   String rejectReason = '';
   var isLoading = false;
   var isDeleting = false;
+  var questionLoaded = false;
+  var error = '';
   String editingNote = '';
 
   @override
   void didChangeDependencies() {
     if (question != null) return;
-    var args = ModalRoute.of(context)?.settings.arguments as Question;
-    question = args;
+    var args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+    final questionsService =
+        Provider.of<QuestionsService>(context, listen: false);
+    if (args['question'] != null) {
+      question = args['question'];
+      questionLoaded = true;
+    } else {
+      questionsService.getQuestion(args['questionId']).then((value) {
+        if (value != null) {
+          setState(() {
+            question = value;
+            questionLoaded = true;
+          });
+        } else {
+          setState(() {
+            error = 'Something went wrong';
+          });
+        }
+      });
+    }
     super.didChangeDependencies();
   }
 
@@ -238,269 +259,274 @@ class _QuestionScreenState extends State<QuestionScreen> {
           },
         ),
       ),
-      body: question == null
-          ? const Center(
-              child: CircularProgressIndicator(),
+      body: error.isNotEmpty
+          ? Center(
+              child: Text(error),
             )
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  if (showTimer)
-                    CountdownTimer(
-                      endTime: question!.endAnswerTime,
-                    ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pushNamed(
-                        ProfileScreen.routeName,
-                        arguments: {'profileId': question!.sender.id},
-                      );
-                    },
-                    child: Row(
-                      children: [
-                        ProfilePicture(
-                          src: question!.sender.picture ?? '',
-                          size: 50,
-                          isCircle: true,
+          : question == null
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: [
+                      if (showTimer)
+                        CountdownTimer(
+                          endTime: question!.endAnswerTime,
                         ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              question!.sender.name,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            if (question!.sender.title != '')
-                              Text(
-                                question!.sender.title,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Text(
-                    question!.description,
-                    style: const TextStyle(
-                      fontSize: 18,
-                    ),
-                  ),
-                  const Divider(),
-                  if (question?.status['action'] == 'rejected')
-                    Text(
-                      '${question?.receiver.id == authUser!.id ? 'You' : getFirstName(question!.receiver.name)} have rejected this question, for the reason: \n"${question?.status['reason']}"',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                      const SizedBox(
+                        height: 20,
                       ),
-                    ),
-                  if (question?.status['action'] == 'pending' &&
-                      question?.receiver.id == authUser!.id &&
-                      !isTimePassed(question!))
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () => rejectQuestion(question!.id),
-                            child: const Text('Reject'),
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {
-                              acceptQuestion(question!.id);
-                            },
-                            child: const Text('Accept'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  if (showNotes)
-                    for (Note note in question!.notes)
-                      Opacity(
-                        opacity: isDeleting ? 0.5 : 1,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pushNamed(
+                            ProfileScreen.routeName,
+                            arguments: {'profileId': question!.sender.id},
+                          );
+                        },
+                        child: Row(
                           children: [
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).pushNamed(
-                                  ProfileScreen.routeName,
-                                  arguments: {'profileId': note.user.id},
-                                );
-                              },
-                              child: Row(
-                                children: [
-                                  ProfilePicture(
-                                    src: note.user.picture ?? '',
-                                    size: 50,
-                                    isCircle: true,
-                                  ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        note.user.name,
-                                        style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      if (note.user.title != '')
-                                        Text(
-                                          note.user.title,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                  const Spacer(),
-                                  if (note.user.id == authUser!.id &&
-                                      !question!.status['done'] &&
-                                      editingNote != '')
-                                    IconButton(
-                                      onPressed: () {
-                                        final questionsService =
-                                            Provider.of<QuestionsService>(
-                                                context,
-                                                listen: false);
-                                        questionsService.updateNote(
-                                          note,
-                                          editingContent,
-                                        );
-                                        setState(() {
-                                          editingNote = '';
-                                          note.content = editingContent;
-                                        });
-                                      },
-                                      icon: const Icon(Icons.save_outlined),
-                                    ),
-                                  if (note.user.id == authUser.id &&
-                                      !question!.status['done'])
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          if (editingNote == note.id) {
-                                            editingNote = '';
-                                          } else {
-                                            editingNote = note.id;
-                                          }
-                                        });
-                                      },
-                                      child: const Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: AppIcon(
-                                          src: 'pencil_fill',
-                                          size: 28,
-                                        ),
-                                      ),
-                                    ),
-                                  if (note.user.id == authUser.id &&
-                                      !question!.status['done'])
-                                    GestureDetector(
-                                      onTap: () {
-                                        delete(note);
-                                      },
-                                      child: const Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: AppIcon(
-                                          src: 'delete',
-                                          color: Colors.red,
-                                          size: 28,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
+                            ProfilePicture(
+                              src: question!.sender.picture ?? '',
+                              size: 50,
+                              isCircle: true,
                             ),
                             const SizedBox(
-                              height: 20,
+                              width: 10,
                             ),
-                            editingNote != '' && editingNote == note.id
-                                ? NoteEditor(
-                                    setContent: setEditingContent,
-                                    controller: editController,
-                                    initialText: note.content,
-                                  )
-                                : HtmlWidget(note.content),
-                            const Divider(),
-                          ],
-                        ),
-                      ),
-                  if (isQuestionActive && question?.receiver.id == authUser!.id)
-                    Column(
-                      children: [
-                        if (editingNote == '')
-                          NoteEditor(
-                            setContent: setContent,
-                            controller: controller,
-                          ),
-                        const SizedBox(
-                          height: 16,
-                        ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              sendNote(
-                                question!.id,
-                                content,
-                                authUser,
-                              );
-                            },
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Send'),
-                                if (isLoading)
-                                  const SizedBox(
-                                    width: 10,
+                                Text(
+                                  question!.sender.name,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                if (isLoading)
-                                  const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
+                                ),
+                                if (question!.sender.title != '')
+                                  Text(
+                                    question!.sender.title,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
                                     ),
                                   ),
                               ],
                             ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        question!.description,
+                        style: const TextStyle(
+                          fontSize: 18,
+                        ),
+                      ),
+                      const Divider(),
+                      if (question?.status['action'] == 'rejected')
+                        Text(
+                          '${question?.receiver.id == authUser!.id ? 'You' : getFirstName(question!.receiver.name)} have rejected this question, for the reason: \n"${question?.status['reason']}"',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ],
-                    ),
-                ],
-              ),
-            ),
+                      if (question?.status['action'] == 'pending' &&
+                          question?.receiver.id == authUser!.id &&
+                          !isTimePassed(question!))
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () => rejectQuestion(question!.id),
+                                child: const Text('Reject'),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  acceptQuestion(question!.id);
+                                },
+                                child: const Text('Accept'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      if (showNotes)
+                        for (Note note in question!.notes)
+                          Opacity(
+                            opacity: isDeleting ? 0.5 : 1,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).pushNamed(
+                                      ProfileScreen.routeName,
+                                      arguments: {'profileId': note.user.id},
+                                    );
+                                  },
+                                  child: Row(
+                                    children: [
+                                      ProfilePicture(
+                                        src: note.user.picture ?? '',
+                                        size: 50,
+                                        isCircle: true,
+                                      ),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            note.user.name,
+                                            style: const TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          if (note.user.title != '')
+                                            Text(
+                                              note.user.title,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                      const Spacer(),
+                                      if (note.user.id == authUser!.id &&
+                                          !question!.status['done'] &&
+                                          editingNote != '')
+                                        IconButton(
+                                          onPressed: () {
+                                            final questionsService =
+                                                Provider.of<QuestionsService>(
+                                                    context,
+                                                    listen: false);
+                                            questionsService.updateNote(
+                                              note,
+                                              editingContent,
+                                            );
+                                            setState(() {
+                                              editingNote = '';
+                                              note.content = editingContent;
+                                            });
+                                          },
+                                          icon: const Icon(Icons.save_outlined),
+                                        ),
+                                      if (note.user.id == authUser.id &&
+                                          !question!.status['done'])
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              if (editingNote == note.id) {
+                                                editingNote = '';
+                                              } else {
+                                                editingNote = note.id;
+                                              }
+                                            });
+                                          },
+                                          child: const Padding(
+                                            padding: EdgeInsets.all(8.0),
+                                            child: AppIcon(
+                                              src: 'pencil_fill',
+                                              size: 28,
+                                            ),
+                                          ),
+                                        ),
+                                      if (note.user.id == authUser.id &&
+                                          !question!.status['done'])
+                                        GestureDetector(
+                                          onTap: () {
+                                            delete(note);
+                                          },
+                                          child: const Padding(
+                                            padding: EdgeInsets.all(8.0),
+                                            child: AppIcon(
+                                              src: 'delete',
+                                              color: Colors.red,
+                                              size: 28,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                editingNote != '' && editingNote == note.id
+                                    ? NoteEditor(
+                                        setContent: setEditingContent,
+                                        controller: editController,
+                                        initialText: note.content,
+                                      )
+                                    : HtmlWidget(note.content),
+                                const Divider(),
+                              ],
+                            ),
+                          ),
+                      if (isQuestionActive &&
+                          question?.receiver.id == authUser!.id)
+                        Column(
+                          children: [
+                            if (editingNote == '')
+                              NoteEditor(
+                                setContent: setContent,
+                                controller: controller,
+                              ),
+                            const SizedBox(
+                              height: 16,
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  sendNote(
+                                    question!.id,
+                                    content,
+                                    authUser,
+                                  );
+                                },
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Text('Send'),
+                                    if (isLoading)
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                    if (isLoading)
+                                      const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
     );
   }
 }

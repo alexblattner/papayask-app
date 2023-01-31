@@ -159,7 +159,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       Question currentQuestion = getQuestion(question.id);
                       Navigator.of(context).pushNamed(
                         QuestionScreen.routeName,
-                        arguments: currentQuestion,
+                        arguments: {'question' : currentQuestion},
                       );
                     },
                     leading: ProfilePicture(
