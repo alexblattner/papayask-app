@@ -151,6 +151,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
     );
     if (!mounted) return;
     if (res == 'Success') {
+      setContent('');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -174,7 +175,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
     setState(() {
       isLoading = false;
-      content = '';
     });
   }
 

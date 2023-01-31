@@ -148,6 +148,9 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
 
   Future<void> _updateProfile() async {
     final authProvider = Provider.of<AuthService>(context, listen: false);
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final setProfileUser = args['setProfileUser'] as Function;
     setState(() {
       isLoading = true;
     });
@@ -180,14 +183,14 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
                   'company': e.company.toJson(),
                   'geographic_specialization': e.geographicSpecialization,
                   'startDate': e.startDate.toIso8601String(),
-                  'endDate': e.endDate?.toIso8601String(),
+                  'endDate': e.endDate?.toIso8601String() ?? '',
                 })
             .toList(),
       };
     }
 
     if (currentScreen == CurrentScreen.education) {
-      var educationList = [];
+      List<Education> educationList = [];
       if (isEditingEducation) {
         educationList = [...user.education];
         var currentEducationIndex = educationList
@@ -196,6 +199,7 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
       } else {
         educationList = [...user.education, newEducation];
       }
+
       data = {
         'education': educationList
             .map((e) => {
@@ -203,7 +207,8 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
                   'level': e.level,
                   'university': e.university,
                   'startDate': e.startDate.toIso8601String(),
-                  'endDate': e.endDate?.toIso8601String(),
+                  'endDate':
+                      e.endDate == null ? '' : e.endDate!.toIso8601String(),
                 })
             .toList(),
       };
@@ -224,6 +229,7 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
     final res = await authProvider.updateUser(data);
     if (!mounted) return;
     if (res == 'done') {
+      setProfileUser();
       Navigator.of(context).pop();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -260,6 +266,9 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
       experienceList = newExperience;
     }
     final authProvider = Provider.of<AuthService>(context, listen: false);
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final setProfileUser = args['setProfileUser'] as Function;
     Map<String, dynamic> data = {};
     if (isEditingEducation) {
       data = {
@@ -290,6 +299,7 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
     final res = await authProvider.updateUser(data);
     if (!mounted) return;
     if (res == 'done') {
+      setProfileUser();
       Navigator.of(context).pop();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

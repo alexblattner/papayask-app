@@ -98,7 +98,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         SetupScreen.routeName,
                         arguments: {
                           'user': profileUser,
-                          'isAdvisorSetup': false
+                          'isAdvisorSetup': false,
+                          'setProfileUser': setProfileUser,
                         },
                       );
                     },
@@ -146,6 +147,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   arguments: {
                                     'currentScreen':
                                         CurrentScreen.profilePicture,
+                                    'setProfileUser': setProfileUser,
                                   },
                                 );
                               },
@@ -323,6 +325,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ProfileUpdatePage.routeName,
                       arguments: {
                         'currentScreen': CurrentScreen.bio,
+                         'setProfileUser': setProfileUser,
                       },
                     );
                   },
@@ -376,6 +379,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ProfileUpdatePage.routeName,
                       arguments: {
                         'currentScreen': CurrentScreen.skills,
+                         'setProfileUser': setProfileUser,
                       },
                     );
                   },
@@ -430,6 +434,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ProfileUpdatePage.routeName,
                       arguments: {
                         'currentScreen': CurrentScreen.language,
+                         'setProfileUser': setProfileUser,
                       },
                     );
                   },
@@ -485,6 +490,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ProfileUpdatePage.routeName,
                       arguments: {
                         'currentScreen': CurrentScreen.education,
+                         'setProfileUser': setProfileUser,
                       },
                     );
                   },
@@ -506,6 +512,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               arguments: {
                                 'currentScreen': CurrentScreen.education,
                                 'oldEducation': education,
+                                 'setProfileUser': setProfileUser,
                               },
                             );
                           }
@@ -573,6 +580,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ProfileUpdatePage.routeName,
                       arguments: {
                         'currentScreen': CurrentScreen.experience,
+                         'setProfileUser': setProfileUser,
                       },
                     );
                   },
@@ -594,6 +602,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               arguments: {
                                 'currentScreen': CurrentScreen.experience,
                                 'oldExperience': experience,
+                                 'setProfileUser': setProfileUser,
                               },
                             );
                           }

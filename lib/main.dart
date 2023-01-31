@@ -29,7 +29,7 @@ Future<void> main() async {
     name: 'Papayask',
     options: DefaultFirebaseOptions.currentPlatform,
   );
- 
+
   await FlutterConfig.loadEnvVariables();
 
   runApp(const MyApp());

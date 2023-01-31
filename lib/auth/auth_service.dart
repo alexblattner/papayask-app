@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 // import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -63,7 +64,7 @@ class AuthService with ChangeNotifier {
     if (token is! String) {
       return;
     }
-    // await registerToken();
+    await registerToken();
     try {
       final res = await http
           .post(Uri.parse('${FlutterConfig.get('API_URL')}/user'), body: {
@@ -157,33 +158,31 @@ class AuthService with ChangeNotifier {
     _auth.currentUser!.reload();
   }
 
-
-
-  //register device token for push notifications
-  // Future<void> registerToken() async {
-  //   final token = await _auth.currentUser?.getIdToken(true);
-  //   if (token is! String) {
-  //     return;
-  //   }
-  //   final fcmToken = await getFirebaseMessagingToken();
-  //   try {
-  //     final res = await http.post(
-  //         Uri.parse('${FlutterConfig.get('API_URL')}/user/tokens/register'),
-  //         body: {
-  //           'token': fcmToken
-  //         },
-  //         headers: {
-  //           'Authorization': 'Bearer $token',
-  //         });
-  //     if (res.statusCode == 200) {
-  //       notifyListeners();
-  //     } else {
-  //       print('error');
-  //     }
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  // }
+  // register device token for push notifications
+  Future<void> registerToken() async {
+    final token = await _auth.currentUser?.getIdToken(true);
+    if (token is! String) {
+      return;
+    }
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    try {
+      final res = await http.post(
+          Uri.parse('${FlutterConfig.get('API_URL')}/user/tokens/register'),
+          body: {
+            'token': fcmToken
+          },
+          headers: {
+            'Authorization': 'Bearer $token',
+          });
+      if (res.statusCode == 200) {
+        notifyListeners();
+      } else {
+        print('error');
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
 
   Future<String> updateUser(Map<String, dynamic> data) async {
     final token = await _auth.currentUser?.getIdToken(true);

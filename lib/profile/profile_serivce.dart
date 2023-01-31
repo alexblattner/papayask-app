@@ -7,9 +7,11 @@ import 'package:flutter_config/flutter_config.dart';
 import 'package:papayask_app/models/user.dart';
 
 class ProfileService with ChangeNotifier {
-  User? profileUser;
+  User? _profileUser;
+
+  User? get profileUser => _profileUser;
   Future<void> getProfileUser(String userId) async {
-    if (profileUser?.id == userId) {
+    if (_profileUser?.id == userId) {
       return;
     }
     final response = await http.get(
@@ -18,15 +20,21 @@ class ProfileService with ChangeNotifier {
       ),
     );
     if (response.statusCode == 200) {
-      profileUser = User.fromJson(json.decode(response.body));
+      _profileUser = User.fromJson(json.decode(response.body));
       notifyListeners();
     } else {
       throw Exception('Failed to load user');
     }
   }
 
+  void updateProfileUser(User user) {
+    print(user.bio);
+    _profileUser = user;
+    notifyListeners();
+  }
+
   void resetProfileUser() {
-    profileUser = null;
+    _profileUser = null;
     notifyListeners();
   }
 }

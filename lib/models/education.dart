@@ -24,7 +24,7 @@ class Education {
       name: json['name'],
       level: json['level'],
       startDate: DateTime.parse(json['startDate']),
-      endDate: DateTime.tryParse(json['endDate']),
+      endDate: json['endDate'] != null ? DateTime.tryParse(json['endDate']) : null,
     );
   }
 

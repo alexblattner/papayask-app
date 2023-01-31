@@ -83,7 +83,7 @@ class MainScreenState extends State<MainScreen> {
     stream.listen((event) async {
       if (event.toString() != 'connection opened') {
         final data = jsonDecode(event.toString());
-        if (data['type'] == 'question') {
+        if (data['type'] == 'question' || data['type'] == 'answer') {
           await questionProvider.fetchQuestions();
         } else if (data['type'] == 'notification') {
           await authProvider.getNotifications();
@@ -114,7 +114,7 @@ class MainScreenState extends State<MainScreen> {
       Navigator.pushNamed(
         context,
         QuestionScreen.routeName,
-        arguments: {'questionId' : message.data['question']},
+        arguments: {'questionId': message.data['question']},
       );
     });
     super.initState();

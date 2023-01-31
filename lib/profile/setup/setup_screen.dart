@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:papayask_app/profile/setup/become_advisor_warning.dart';
 import 'package:provider/provider.dart';
 
+import 'package:papayask_app/profile/setup/become_advisor_warning.dart';
 import 'package:papayask_app/profile/become_advisor_modal.dart';
 import 'package:papayask_app/shared/cloudinary_upload.dart';
 import 'package:papayask_app/shared/full_logo.dart';
@@ -245,7 +245,11 @@ class _SetupScreenState extends State<SetupScreen> {
     final res = await authProvider.updateUser(data);
     if (!mounted) return;
     if (res == 'done') {
-      // if update is successful
+        // if update is successful
+      final args =
+          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+      final setProfileUser = args['setProfileUser'] as Function;
+      setProfileUser();//update user in profile page
       if (type == 'submit') {
         if (isAdvisorSetup) {
           //apply to become an advisor
