@@ -110,12 +110,11 @@ class _HomeControllerState extends State<HomeController> {
 
   @override
   void initState() {
-    final auth = Provider.of<AuthService>(context, listen: false);
+     final auth = Provider.of<AuthService>(context, listen: false);
 
     stream = auth.authStateChanges;
     super.initState();
   }
-
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthService>(context);

@@ -6,7 +6,8 @@ class ProfilePicture extends StatelessWidget {
   final String src;
   final double size;
   final bool isCircle;
-  const ProfilePicture({super.key, required this.src, this.size = 250, this.isCircle = false});
+  const ProfilePicture(
+      {super.key, required this.src, this.size = 250, this.isCircle = false});
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +27,7 @@ class ProfilePicture extends StatelessWidget {
                   fit: BoxFit.cover,
                 )
               : CachedNetworkImage(
+                  fit: BoxFit.cover,
                   placeholder: (ctx, url) => Image.asset(
                     'assets/images/default.png',
                     width: size,
@@ -38,8 +40,9 @@ class ProfilePicture extends StatelessWidget {
                     height: size,
                     fit: BoxFit.cover,
                   ),
-                  imageUrl:
-                      '${FlutterConfig.get('CLOUDINARY_URL')}/c_fill,w_${size.toInt()},h_${size.toInt()}/${FlutterConfig.get('ENV')}/$src',
+                  imageUrl: src.contains('https:')
+                      ? src
+                      : '${FlutterConfig.get('CLOUDINARY_URL')}/c_fill,w_${size.toInt()},h_${size.toInt()}/${FlutterConfig.get('ENV')}/$src',
                 ),
         ),
       ),

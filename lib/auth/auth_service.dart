@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
-// import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_config/flutter_config.dart';
@@ -19,6 +19,7 @@ class AuthService with ChangeNotifier {
   final _auth = FirebaseAuth.instance; //firebase auth instance
   var _notifications = <AppNotification>[];
   var streamConnected = false;
+  var isLoading = false;
 
   void updateConnected(bool connected) {
     streamConnected = connected;
@@ -47,7 +48,7 @@ class AuthService with ChangeNotifier {
   AuthService() {
     //listen to auth state changes
     authStateChanges.listen((User? user) async {
-      if (user != null && authUser == null) {
+      if (user != null && authUser == null && !isLoading) {
         //if user is authenticated
         updateAuthUser(user);
       } else {
@@ -60,17 +61,18 @@ class AuthService with ChangeNotifier {
 
   //update authUser with user info coming from firebase
   Future<void> updateAuthUser(User? user) async {
+    isLoading = true;
     final token = await user?.getIdToken(true);
     if (token is! String) {
       return;
     }
-    await registerToken();
     try {
       final res = await http
           .post(Uri.parse('${FlutterConfig.get('API_URL')}/user'), body: {
         'email': user?.email,
         'name': user?.displayName,
         'uid': user?.uid,
+        'photoUrl': user?.photoURL,
       }, headers: {
         'Authorization': 'Bearer $token',
       });
@@ -78,9 +80,11 @@ class AuthService with ChangeNotifier {
         authUser = user_model.User.fromJson(jsonDecode(res.body));
         authUser!.questions = questionsService.questions;
         await getNotifications();
+        await registerToken();
       } else {
         authUser = null;
       }
+
       notifyListeners();
     } catch (e) {
       print(e);
@@ -92,7 +96,6 @@ class AuthService with ChangeNotifier {
     try {
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(email: email, password: password);
-      //TODO: check if username is unique
       await userCredential.user!.updateDisplayName(username);
       await userCredential.user!.sendEmailVerification();
       updateAuthUser(userCredential.user);
@@ -142,10 +145,16 @@ class AuthService with ChangeNotifier {
 
   //sign user in with facebook to firebase and update authUser, create user in mongodb if not already created
   Future<void> signInWithFacebook() async {
-    // final LoginResult loginResult = await FacebookAuth.instance.login();
-    // final OAuthCredential facebookAuthCredential =
-    //     FacebookAuthProvider.credential(loginResult.accessToken!.token);
-    // _auth.signInWithCredential(facebookAuthCredential);
+    final LoginResult loginResult = await FacebookAuth.instance.login();
+    final OAuthCredential facebookAuthCredential =
+        FacebookAuthProvider.credential(loginResult.accessToken!.token);
+    try {
+      UserCredential userCredential =
+          await _auth.signInWithCredential(facebookAuthCredential);
+      updateAuthUser(userCredential.user);
+    } catch (e) {
+      print(e);
+    }
   }
 
   //sign user out of firebase and update authUser
@@ -177,7 +186,7 @@ class AuthService with ChangeNotifier {
       if (res.statusCode == 200) {
         notifyListeners();
       } else {
-        print('error');
+        print(res.body);
       }
     } catch (e) {
       print(e);
