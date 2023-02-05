@@ -28,7 +28,6 @@ class ProfileService with ChangeNotifier {
   }
 
   void updateProfileUser(User user) {
-    print(user.bio);
     _profileUser = user;
     notifyListeners();
   }

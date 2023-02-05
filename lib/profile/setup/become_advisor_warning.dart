@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import 'package:papayask_app/auth/auth_service.dart';
-import 'package:papayask_app/models/user.dart';
 import 'package:papayask_app/theme/colors.dart';
 import 'package:papayask_app/profile/become_advisor_modal.dart';
 
@@ -30,8 +27,6 @@ class _BecomeAdvisorWarningState extends State<BecomeAdvisorWarning> {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthService>(context);
-    User authUser = authProvider.authUser!;
     return Scaffold(
       body: Stack(
         children: [

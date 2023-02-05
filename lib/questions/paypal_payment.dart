@@ -2,6 +2,7 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'paypal_services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:papayask_app/theme/colors.dart';
 
 class PaypalPayment extends StatefulWidget {
   final Function onFinish;
@@ -75,7 +76,7 @@ class PaypalPaymentState extends State<PaypalPayment> {
         }
       } catch (e) {
         Navigator.of(context).pop();
-        print('exception: $e');
+        debugPrint(e.toString());
       }
     });
   }
@@ -85,7 +86,7 @@ class PaypalPaymentState extends State<PaypalPayment> {
     if (checkoutUrl != '') {
       return Scaffold(
         appBar: AppBar(
-          backgroundColor: Theme.of(context).backgroundColor,
+          backgroundColor: Theme.of(context).colorScheme.primaryColor,
           leading: GestureDetector(
             child: const Icon(Icons.arrow_back_ios),
             onTap: () => Navigator.pop(context),

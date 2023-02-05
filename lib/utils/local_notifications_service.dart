@@ -1,4 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class LocalNotificationsService {
@@ -18,22 +19,24 @@ class LocalNotificationsService {
     try {
       final id = DateTime.now().millisecondsSinceEpoch ~/ 1000;
       const NotificationDetails notificationDetails = NotificationDetails(
-        android: AndroidNotificationDetails(
-          'papayask',
-          'papayask channel',
-          importance: Importance.max,
-          priority: Priority.high,
-        ),
-        iOS: DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-        )
-      );
+          android: AndroidNotificationDetails(
+            'papayask',
+            'papayask channel',
+            importance: Importance.max,
+            priority: Priority.high,
+          ),
+          iOS: DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+          ));
       await flutterLocalNotificationsPlugin.show(
-          id, message.notification?.title, message.notification?.body, notificationDetails);
+          id,
+          message.notification?.title,
+          message.notification?.body,
+          notificationDetails);
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 }

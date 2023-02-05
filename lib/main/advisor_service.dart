@@ -369,7 +369,7 @@ class AdvisorService with ChangeNotifier {
         createEducationLists([EducationList.all]);
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 

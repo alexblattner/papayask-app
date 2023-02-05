@@ -87,7 +87,7 @@ class AuthService with ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -116,7 +116,7 @@ class AuthService with ChangeNotifier {
       );
       updateAuthUser(userCredential.user);
     } on FirebaseAuthException catch (e) {
-      print(e.code);
+      debugPrint(e.toString());
       return e.code;
     }
     return 'done';
@@ -139,7 +139,7 @@ class AuthService with ChangeNotifier {
           await _auth.signInWithCredential(credential);
       updateAuthUser(userCredential.user);
     } on FirebaseAuthException catch (e) {
-      print(e.code);
+      debugPrint(e.toString());
     }
   }
 
@@ -153,7 +153,7 @@ class AuthService with ChangeNotifier {
           await _auth.signInWithCredential(facebookAuthCredential);
       updateAuthUser(userCredential.user);
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -186,10 +186,10 @@ class AuthService with ChangeNotifier {
       if (res.statusCode == 200) {
         notifyListeners();
       } else {
-        print(res.body);
+        debugPrint(res.body);
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -218,7 +218,7 @@ class AuthService with ChangeNotifier {
         return 'error';
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return e.toString();
     }
   }
@@ -243,11 +243,11 @@ class AuthService with ChangeNotifier {
         notifyListeners();
         return 'done';
       } else {
-        print(convertedData['message']);
+        debugPrint(convertedData['message']);
         return 'Something went wrong';
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return 'Something went wrong';
     }
   }
@@ -271,7 +271,7 @@ class AuthService with ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -300,7 +300,7 @@ class AuthService with ChangeNotifier {
             'Accept': 'application/json'
           });
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -329,7 +329,7 @@ class AuthService with ChangeNotifier {
       return;
     }
     try {
-      final res = await http.post(
+      await http.post(
           Uri.parse('${FlutterConfig.get('API_URL')}/user/favorite/${user.id}'),
           body: jsonEncode({
             'type': 'users',
@@ -339,9 +339,8 @@ class AuthService with ChangeNotifier {
             'Content-type': 'application/json',
             'Accept': 'application/json'
           });
-      print(res.body);
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -385,7 +384,7 @@ class AuthService with ChangeNotifier {
             'Accept': 'application/json'
           });
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -412,7 +411,7 @@ class AuthService with ChangeNotifier {
       }
       return 'error';
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return 'Error';
     }
   }

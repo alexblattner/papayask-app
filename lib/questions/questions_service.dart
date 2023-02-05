@@ -47,7 +47,7 @@ class QuestionsService with ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -103,7 +103,7 @@ class QuestionsService with ChangeNotifier {
       }
       return 'Error';
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return 'Error';
     }
   }
@@ -122,8 +122,6 @@ class QuestionsService with ChangeNotifier {
           'Authorization': 'Bearer $token',
         },
       );
-      print(res.body);
-
       if (res.statusCode == 200) {
         //replace question in list
         final index = _questions['received']!
@@ -136,7 +134,7 @@ class QuestionsService with ChangeNotifier {
       }
       return 'Error';
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return 'Error';
     }
   }
@@ -166,7 +164,7 @@ class QuestionsService with ChangeNotifier {
       }
       return 'Error';
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return 'Error';
     }
   }
@@ -203,7 +201,6 @@ class QuestionsService with ChangeNotifier {
           'Authorization': 'Bearer $token',
         },
       );
-      print(res.body);
       if (res.statusCode == 200) {
         _questions['received']![index].notes.last.id =
             jsonDecode(res.body)['_id'];
@@ -212,7 +209,7 @@ class QuestionsService with ChangeNotifier {
       }
       return 'Error';
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return 'Error';
     }
   }
@@ -246,7 +243,7 @@ class QuestionsService with ChangeNotifier {
       }
       return 'Error';
     } catch (e) {
-      print(e);
+     debugPrint(e.toString());
       return 'Error';
     }
   }
@@ -272,7 +269,7 @@ class QuestionsService with ChangeNotifier {
       }
       return 'Error';
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return 'Error';
     }
   }
@@ -306,7 +303,7 @@ class QuestionsService with ChangeNotifier {
       }
       return 'Error';
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return 'Error';
     }
   }
